@@ -797,31 +797,30 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                   : SizedBox(
                       height: 400,
                       width: deviceWidth(context),
-                      child: MapPageOrderId(
-                        orderId: widget.index.toString(),
-                        // sourceLocation: LatLng(
-                        //     double.parse(orderHistoryAPIProvider
-                        //         .orderHistoryResponse!
-                        //         .orderHistory![widget.index]
-                        //         .tripDetails!
-                        //         .toLat!),
-                        //     double.parse(orderHistoryAPIProvider
-                        //         .orderHistoryResponse!
-                        //         .orderHistory![widget.index]
-                        //         .tripDetails!
-                        //         .toLong!)),
-                        // destinationLocation: LatLng(
-                        //     double.parse(orderHistoryAPIProvider
-                        //         .orderHistoryResponse!
-                        //         .orderHistory![widget.index]
-                        //         .tripDetails!
-                        //         .fromLat!),
-                        //     double.parse(orderHistoryAPIProvider
-                        //         .orderHistoryResponse!
-                        //         .orderHistory![widget.index]
-                        //         .tripDetails!
-                        //         .fromLong!)),
-                      ),
+                      child: MapPage(orderId: widget.index
+                          // sourceLocation: LatLng(
+                          //     double.parse(orderHistoryAPIProvider
+                          //         .orderHistoryResponse!
+                          //         .orderHistory![widget.index]
+                          //         .tripDetails!
+                          //         .toLat!),
+                          //     double.parse(orderHistoryAPIProvider
+                          //         .orderHistoryResponse!
+                          //         .orderHistory![widget.index]
+                          //         .tripDetails!
+                          //         .toLong!)),
+                          // destinationLocation: LatLng(
+                          //     double.parse(orderHistoryAPIProvider
+                          //         .orderHistoryResponse!
+                          //         .orderHistory![widget.index]
+                          //         .tripDetails!
+                          //         .fromLat!),
+                          //     double.parse(orderHistoryAPIProvider
+                          //         .orderHistoryResponse!
+                          //         .orderHistory![widget.index]
+                          //         .tripDetails!
+                          //         .fromLong!)),
+                          ),
                     ),
 
           Align(

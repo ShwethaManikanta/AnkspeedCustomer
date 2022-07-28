@@ -45,13 +45,19 @@ class BookVehiclePage extends StatefulWidget {
     required this.pickupContactPhone,
     required this.toState,
     required this.fromAddress,
+    required this.stop1,
+    required this.stop2,
+    required this.stop3,
   }) : super(key: key);
   final double toLatitude, toLongitude;
   final String toAddress,
       pickupContactName,
       pickupContactPhone,
       toState,
-      fromAddress;
+      fromAddress,
+      stop1,
+      stop2,
+      stop3;
 
   @override
   _BookVehiclePageState createState() => _BookVehiclePageState();
@@ -67,6 +73,8 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
   late BitmapDescriptor myLocation;
   late BitmapDescriptor endLocation;
   final Set<Marker> _markers = <Marker>{};
+
+  bool viewStop = false;
 
   @override
   void initState() {
@@ -439,6 +447,117 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                                       )
                                     ],
                                   ),
+
+                                  //  if (viewStop == false)
+                                  if (widget.stop1 != " ")
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Column(
+                                        children: [
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          CustomDividerView(
+                                            dividerHeight: 1,
+                                          ),
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          TextButton(
+                                            child: Text(
+                                              "View Stops",
+                                              style: CommonStyles.red12(),
+                                            ),
+                                            onPressed: () {
+                                              viewStop = !viewStop;
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  if (viewStop == true)
+                                    Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.add_location_alt_outlined,
+                                              size: 15,
+                                              color: Colors.blue,
+                                            ),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            Expanded(
+                                              flex: 4,
+                                              child: Text(
+                                                widget.stop1,
+                                                maxLines: 3,
+                                                style: CommonStyles.blue12(),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        CustomDividerView(
+                                          dividerHeight: 1,
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.add_location_alt_outlined,
+                                              size: 15,
+                                              color: Colors.blue,
+                                            ),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            Expanded(
+                                              flex: 4,
+                                              child: Text(
+                                                widget.stop2,
+                                                maxLines: 3,
+                                                style: CommonStyles.blue12(),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        CustomDividerView(
+                                          dividerHeight: 1,
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.add_location_alt_outlined,
+                                              size: 15,
+                                              color: Colors.blue,
+                                            ),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            Expanded(
+                                              flex: 4,
+                                              child: Text(
+                                                widget.stop3,
+                                                maxLines: 3,
+                                                style: CommonStyles.blue12(),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ],
+                                    )
                                 ],
                               ),
                             ),

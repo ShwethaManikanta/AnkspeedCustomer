@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_place/google_place.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:google_places_flutter/model/prediction.dart';
 import 'package:new_ank_customer/Services/api_services.dart';
 import 'package:new_ank_customer/Services/location_services.dart/loaction_shared_preference.dart';
-import 'package:new_ank_customer/common/color_const.dart';
 import 'package:new_ank_customer/common/common_styles.dart';
 import 'package:new_ank_customer/common/utils.dart';
 import 'package:new_ank_customer/pages/search_page.dart';
@@ -16,8 +13,20 @@ import 'package:new_ank_customer/pages/search_page.dart';
 class MultiStopScreen extends StatefulWidget {
   final String pickUpLocation;
   final String dropLocation;
-  const MultiStopScreen(
-      {Key? key, required this.pickUpLocation, required this.dropLocation})
+  double toLat;
+  double toLong;
+  final String toState;
+  final String pickUpContactName;
+  final String pickUpContactNumber;
+  MultiStopScreen(
+      {Key? key,
+      required this.pickUpLocation,
+      required this.dropLocation,
+      required this.toLat,
+      required this.toLong,
+      required this.pickUpContactName,
+      required this.pickUpContactNumber,
+      required this.toState})
       : super(key: key);
 
   @override
@@ -27,10 +36,7 @@ class MultiStopScreen extends StatefulWidget {
 class _MultiStopScreenState extends State<MultiStopScreen> {
   List<Widget> _children = [];
   TextEditingController _bookingfromDate = TextEditingController();
-  TextEditingController _bookingtoDate = TextEditingController();
   TextEditingController _bookingfromTime = TextEditingController();
-
-  TextEditingController _bookingtoTime = TextEditingController();
 
   TextEditingController controller3 = TextEditingController();
   TextEditingController controller4 = TextEditingController();
@@ -48,6 +54,7 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
       toLng3,
       toLat4,
       toLng4;
+
   GoogleMapController? mapController;
   int index = 0;
   int index1 = 0;
@@ -78,25 +85,27 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
   @override
   void initState() {
     super.initState();
+
     //  initializeDateFormatting();
 
     BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(size: Size(2, 2)), 'assets/images/redping.png')
+            ImageConfiguration(size: Size(2, 2)), 'assets/locImg.png')
         .then((onValue) {
       myIcon = onValue;
     });
     BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(size: Size(2, 2)), 'assets/images/greenping.png')
+            ImageConfiguration(size: Size(2, 2)), 'assets/loc_pin.png')
         .then((onValue) {
       myDestIcon = onValue;
     });
     BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(size: Size(2, 2)), 'assets/images/stop.png')
+            ImageConfiguration(size: Size(2, 2)), 'assets/loc_pin.png')
         .then((onValue) {
       addStopIcon = onValue;
     });
 
     _addPolyLine();
+    // _destMarkertrail(widget.toLat, widget.toLong);
   }
 
   _addPolyLine() {
@@ -175,6 +184,7 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
               myLocationButtonEnabled: true,
               markers: Set<Marker>.of(markers.values),
               zoomGesturesEnabled: true,
+              zoomControlsEnabled: false,
               // circles: circles,
               onCameraIdle: () {
                 print("mytaps");
@@ -213,10 +223,69 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
                               ),
                               Container(
                                   width:
-                                      MediaQuery.of(context).size.width * 0.65,
+                                      MediaQuery.of(context).size.width * 0.80,
                                   child: Text(widget.pickUpLocation,
+                                      maxLines: 3,
                                       overflow: TextOverflow.ellipsis,
-                                      style: CommonStyles.green12())),
+                                      style: CommonStyles.green15())),
+                            ],
+                          ),
+                        )),
+                    dropLocationAutoCompleteTextField(context),
+                    Column(
+                      children: _children,
+                    )
+                  ],
+                )),
+            Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Wrap(
+                  children: [
+                    Card(
+                        elevation: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.location_history,
+                                size: 20,
+                                color: Colors.green,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.79,
+                                  child: Text(widget.pickUpLocation,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: CommonStyles.green15())),
+                            ],
+                          ),
+                        )),
+                    Card(
+                        elevation: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.location_history,
+                                size: 20,
+                                color: Colors.red,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.79,
+                                  child: Text(widget.dropLocation,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: CommonStyles.red15())),
                             ],
                           ),
                         )),
@@ -246,7 +315,29 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
                         ),
                         onPressed: () {
                           setState(() {
-                            confirmLocation = true;
+                            showModalBottomSheet(
+                                context: context,
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(12),
+                                        topRight: Radius.circular(12))),
+                                builder: (context) {
+                                  print(controller.text);
+                                  return VerifyAddressBottomSheet(
+                                      toLatitude: widget.toLat,
+                                      toLongitude: widget.toLong,
+                                      toState: widget.toState,
+                                      pickUpContactNumber:
+                                          widget.pickUpContactNumber,
+                                      pickUpContactName:
+                                          widget.pickUpContactName,
+                                      toAddress: widget.dropLocation,
+                                   /*   stop1: controller2.text,
+                                      stop2: controller3.text,
+                                      stop3: controller4.text*/);
+                                });
+
+                            /*      confirmLocation = true;
                             ownBottomSheet(context, StatefulBuilder(
                                 builder: (BuildContext context, setState) {
                               return Form(
@@ -404,7 +495,7 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
                                       ],
                                     ),
 
-                                    /*   cmbscritta
+                                    */ /*   cmbscritta
                                         ? Row(
                                             children: [
                                               Expanded(
@@ -458,9 +549,9 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
                                               ),
                                             ],
                                           )
-                                        : Container(),*/
+                                        : Container(),*/ /*
 
-                                    /*  fromLat != null && fromLng != null ||
+                                    */ /*  fromLat != null && fromLng != null ||
                                             toLat1 != null && toLng1 != null
                                         ? FutureBuilder<CommonPickerModel?>(
                                             future: ambulanceProvider
@@ -561,7 +652,7 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
                                               }
                                               return Container();
                                             })
-                                        : Container(),*/
+                                        : Container(),*/ /*
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: InkWell(
@@ -597,7 +688,7 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
                                             };
                                             print("ambulanceparam +${param}");
 
-                                            /*  ambulanceProvider
+                                            */ /*  ambulanceProvider
                                                 .ambulanceaddTripApi(param)
                                                 .then((value) {
                                               print(value!.cart_id);
@@ -611,7 +702,7 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
                                                                   value.cart_id,
                                                             )));
                                               }
-                                            });*/
+                                            });*/ /*
                                           },
                                           child: ownContainer(
                                               Text(
@@ -684,7 +775,7 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
                                   ],
                                 ),
                               );
-                            }));
+                            }));*/
                           });
                         },
                         style: ButtonStyle(
@@ -713,13 +804,13 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
           textEditingController: controller2,
           googleAPIKey: "AIzaSyBI5cpNYrsaytpcOHr85QWb9wRv0ZnOKew",
           inputDecoration: InputDecoration(
-              hintText: "Enter Drop location",
+              hintText: "Enter Stop location",
               border: InputBorder.none,
               hintStyle: CommonStyles.black13(),
               prefixIcon: Icon(
-                Icons.fiber_manual_record,
-                size: 13,
-                color: Colors.red,
+                Icons.location_history,
+                size: 20,
+                color: Colors.amber,
               ),
               suffixIcon: InkWell(
                 onTap: () {
@@ -749,12 +840,14 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
           getPlaceDetailWithLatLng: (Prediction prediction) async {
             toLat1 = prediction.lat!;
             toLng1 = prediction.lng!;
-            setState(() {
-              print("toLat2 +${toLat2}");
-              _destMarkertrail(toLat1, toLng1);
 
-              // latlng.add(LatLng(double.parse(toLat1!), double.parse(toLng1!)));
-            });
+            print("toLat2 +${toLat2}");
+            //    _destMarkertrail(widget.toLat, widget.toLong);
+            //   _destMarkertrail(widget.toLat, widget.toLong);
+
+            _destMarkertrail(toLat1, toLng1);
+
+            // latlng.add(LatLng(double.parse(toLat1!), double.parse(toLng1!)));
           },
           itmClick: (Prediction prediction) {
             controller2.text = prediction.description!;
@@ -879,7 +972,7 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
     );
   }
 
-  void _destMarker() {
+  /* void _destMarker() {
     if (toLat1 != null && (toLat2 == null && toLat3 == null)) {
       _addDestinationMarker(
         LatLng(double.parse(toLat1!), double.parse(toLng1!)),
@@ -922,10 +1015,21 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
         BitmapDescriptor.defaultMarker,
       );
     }
-  }
+  }*/
 
   void _destMarkertrail(latitude, longitude) {
-    if (toLat1 != null && (toLat2 == null && toLat3 == null)) {
+    //   print("-------- " + widget.toLat.toString() + widget.toLong.toString());
+    /* if (SharedPreference.latitude != null &&
+        (widget.toLat != null && widget.toLong != null)) {
+      print("destination Drop");
+      _addDestinationMarker(
+        LatLng(latitude, longitude),
+        "Destination",
+        BitmapDescriptor.defaultMarker,
+      );
+      latlng.add(LatLng(latitude, longitude));
+    } else*/
+    if (widget.toLong != null && (toLat2 == null && toLat3 == null)) {
       print("destination1");
       _addDestinationMarker(
         LatLng(double.parse(latitude!), double.parse(longitude!)),

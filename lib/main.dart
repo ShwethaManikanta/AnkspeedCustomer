@@ -194,7 +194,7 @@ class _GetLoginUserState extends State<GetLoginUser> {
           .read<VerifyUserLoginAPIProvider>()
           .getUser(
               deviceToken: token ?? "NA",
-              deviceType: "ANKCustomer",
+              deviceType: "ANKPartner",
               phoneNumber: loggedInUserProvider.phoneNo!.substring(
                   loggedInUserProvider.phoneNo!.length - 10,
                   loggedInUserProvider.phoneNo!.length))

@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animations/loading_animations.dart';
+import 'package:new_ank_customer/Services/apiProvider/order_history_api_provider.dart';
 import 'package:new_ank_customer/Services/apiProvider/order_specific_api_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:new_ank_customer/Services/api_services.dart';
@@ -20,9 +21,9 @@ const double CAMERA_BEARING = 30;
 
 // const LatLng SOURCE_LOCATION = LatLng(13.043410938786145, 77.57266403919914);
 
-class MapPageOrderId extends StatefulWidget {
-  const MapPageOrderId({Key? key, required this.orderId}) : super(key: key);
-  final String orderId;
+class MapPage extends StatefulWidget {
+  const MapPage({Key? key, required this.orderId}) : super(key: key);
+  final int orderId;
   // final LatLng sourceLocation;
 
   // final LatLng destinationLocation;
@@ -30,7 +31,7 @@ class MapPageOrderId extends StatefulWidget {
   State<StatefulWidget> createState() => MapPageState();
 }
 
-class MapPageState extends State<MapPageOrderId> with TickerProviderStateMixin {
+class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   Timer? timer;
 
   final Completer<GoogleMapController> _controller = Completer();
@@ -71,7 +72,8 @@ class MapPageState extends State<MapPageOrderId> with TickerProviderStateMixin {
 
   trackDriverLocation() {
     final orderHistoryAPIProvider =
-        Provider.of<OrderSpecificAPIProvider>(context, listen: false);
+        Provider.of<OrderHistoryAPIProvider>(context, listen: false);
+
     // print(widget.sourceLocation.latitude.toString() +
     //     "----" +
     //     widget.sourceLocation.longitude.toString() +
@@ -85,18 +87,18 @@ class MapPageState extends State<MapPageOrderId> with TickerProviderStateMixin {
           apiServices
               .trackOrder(
                   orderId: orderHistoryAPIProvider
-                      .orderSpecificModel!.orderHistory!.id!)
+                      .orderHistoryResponse!.orderHistory![widget.orderId].id!)
               .then((value) {
             print("the location track value" + value!.status.toString());
 
             print("Track Status ----------" + value.status!);
             if (value.status == "1" &&
                 value.trackDetails != null &&
-                orderHistoryAPIProvider
-                        .orderSpecificModel!.orderHistory!.orderStatus !=
+                orderHistoryAPIProvider.orderHistoryResponse!
+                        .orderHistory![widget.orderId].orderStatus !=
                     "3" &&
-                orderHistoryAPIProvider
-                        .orderSpecificModel!.orderHistory!.orderStatus !=
+                orderHistoryAPIProvider.orderHistoryResponse!
+                        .orderHistory![widget.orderId].orderStatus !=
                     "2") {
               print("Track Lat " + value.trackDetails!.lat!);
               print("Track lng " + value.trackDetails!.long!);
@@ -196,9 +198,10 @@ class MapPageState extends State<MapPageOrderId> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final orderHistoryAPIProvider =
-        Provider.of<OrderSpecificAPIProvider>(context);
+        Provider.of<OrderHistoryAPIProvider>(context);
 
-    if (orderHistoryAPIProvider.orderSpecificModel!.orderHistory!.orderStatus ==
+    if (orderHistoryAPIProvider
+            .orderHistoryResponse!.orderHistory![widget.orderId].orderStatus ==
         "1") {
       return Center(
           child: SizedBox(
@@ -219,7 +222,7 @@ class MapPageState extends State<MapPageOrderId> with TickerProviderStateMixin {
                 ],
               )));
     } else if (orderHistoryAPIProvider
-            .orderSpecificModel!.orderHistory!.orderStatus ==
+            .orderHistoryResponse!.orderHistory![widget.orderId].orderStatus ==
         "2") {
       return Center(
           child: SizedBox(
@@ -241,27 +244,13 @@ class MapPageState extends State<MapPageOrderId> with TickerProviderStateMixin {
                 ],
               )));
     } else if (orderHistoryAPIProvider
-            .orderSpecificModel!.orderHistory!.orderStatus ==
+            .orderHistoryResponse!.orderHistory![widget.orderId].orderStatus ==
         "3") {
       return Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          /*   SmoothStarRating(
-                  allowHalfRating: false,
-                  onRatingChanged: (v) {
-                    rating = v;
-                    setState(() {});
-                  },
-                  starCount: 5,
-                  rating: rating,
-                  size: 40.0,
-                  filledIconData: Icons.star,
-                  halfFilledIconData: Icons.star,
-                  color: Colors.green,
-                  borderColor: Colors.green,
-                  spacing: 0.0),*/
           SizedBox(
               height: 200,
               width: deviceWidth(context),
@@ -331,12 +320,12 @@ class MapPageState extends State<MapPageOrderId> with TickerProviderStateMixin {
   googleMapsBody() {
     final mapsApiProvider = Provider.of<ViewDetailsMapProvider>(context);
     final orderHistoryAPIProvider =
-        Provider.of<OrderSpecificAPIProvider>(context);
+        Provider.of<OrderHistoryAPIProvider>(context);
     LatLng initialTarget = LatLng(
-        double.parse(orderHistoryAPIProvider
-            .orderSpecificModel!.orderHistory!.tripDetails!.toLat!),
-        double.parse(orderHistoryAPIProvider
-            .orderSpecificModel!.orderHistory!.tripDetails!.toLong!));
+        double.parse(orderHistoryAPIProvider.orderHistoryResponse!
+            .orderHistory![widget.orderId].tripDetails!.toLat!),
+        double.parse(orderHistoryAPIProvider.orderHistoryResponse!
+            .orderHistory![widget.orderId].tripDetails!.toLong!));
 
     CameraPosition initialCameraPosition = CameraPosition(
         zoom: CAMERA_ZOOM,
@@ -374,28 +363,29 @@ class MapPageState extends State<MapPageOrderId> with TickerProviderStateMixin {
 
   void showPinsOnMap() async {
     final orderHistoryAPIProvider =
-        Provider.of<OrderSpecificAPIProvider>(context, listen: false);
+        Provider.of<OrderHistoryAPIProvider>(context, listen: false);
     // get a LatLng for the source location
     // from the LocationData currentLocation object
 
-    if (orderHistoryAPIProvider.orderSpecificModel!.orderHistory!.orderStatus ==
+    if (orderHistoryAPIProvider
+            .orderHistoryResponse!.orderHistory![widget.orderId].orderStatus ==
         "4") {
       _markers.removeWhere((m) => m.markerId.value == 'sourcePin');
       _markers.removeWhere((m) => m.markerId.value == 'destPin');
 
       var pinPosition = LatLng(
-          double.parse(orderHistoryAPIProvider.orderSpecificModel!.orderHistory!
-              .tripDetails!.startLocationLat!),
-          double.parse(orderHistoryAPIProvider.orderSpecificModel!.orderHistory!
-              .tripDetails!.startLocationLong!));
+          double.parse(orderHistoryAPIProvider.orderHistoryResponse!
+              .orderHistory![widget.orderId].tripDetails!.startLocationLat!),
+          double.parse(orderHistoryAPIProvider.orderHistoryResponse!
+              .orderHistory![widget.orderId].tripDetails!.startLocationLong!));
       // get a LatLng out of the LocationData object
       var destPosition =
           // LatLng(destinationLocation.latitude!, destinationLocation.longitude!);
           LatLng(
-              double.parse(orderHistoryAPIProvider
-                  .orderSpecificModel!.orderHistory!.tripDetails!.fromLat!),
-              double.parse(orderHistoryAPIProvider
-                  .orderSpecificModel!.orderHistory!.tripDetails!.fromLong!));
+              double.parse(orderHistoryAPIProvider.orderHistoryResponse!
+                  .orderHistory![widget.orderId].tripDetails!.fromLat!),
+              double.parse(orderHistoryAPIProvider.orderHistoryResponse!
+                  .orderHistory![widget.orderId].tripDetails!.fromLong!));
 
       sourcePinInfo = PinInformation(
           locationName: "Start Location",
@@ -477,18 +467,18 @@ class MapPageState extends State<MapPageOrderId> with TickerProviderStateMixin {
       createPolylines(fromLatLong: pinPosition, toLatLong: destPosition);
     } else {
       var pinPosition = LatLng(
-          double.parse(orderHistoryAPIProvider
-              .orderSpecificModel!.orderHistory!.tripDetails!.fromLat!),
-          double.parse(orderHistoryAPIProvider
-              .orderSpecificModel!.orderHistory!.tripDetails!.fromLong!));
+          double.parse(orderHistoryAPIProvider.orderHistoryResponse!
+              .orderHistory![widget.orderId].tripDetails!.fromLat!),
+          double.parse(orderHistoryAPIProvider.orderHistoryResponse!
+              .orderHistory![widget.orderId].tripDetails!.fromLong!));
       // get a LatLng out of the LocationData object
       var destPosition =
           // LatLng(destinationLocation.latitude!, destinationLocation.longitude!);
           LatLng(
-              double.parse(orderHistoryAPIProvider
-                  .orderSpecificModel!.orderHistory!.tripDetails!.toLat!),
-              double.parse(orderHistoryAPIProvider
-                  .orderSpecificModel!.orderHistory!.tripDetails!.toLong!));
+              double.parse(orderHistoryAPIProvider.orderHistoryResponse!
+                  .orderHistory![widget.orderId].tripDetails!.toLat!),
+              double.parse(orderHistoryAPIProvider.orderHistoryResponse!
+                  .orderHistory![widget.orderId].tripDetails!.toLong!));
 
       sourcePinInfo = PinInformation(
           locationName: "Start Location",

@@ -70,6 +70,7 @@ class _SuccessfulBookingScreenState extends State<SuccessfulBookingScreen> {
         Navigator.of(context).pop();
         Navigator.of(context).pop();
         Navigator.of(context).pop();
+        Navigator.of(context).pop();
         return true;
       },
       child: Scaffold(

@@ -3,35 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttercontactpicker/fluttercontactpicker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_place/google_place.dart';
 import 'package:new_ank_customer/Services/apiProvider/registration_api_provider.dart';
 import 'package:new_ank_customer/Services/location_services.dart/loaction_shared_preference.dart';
 import 'package:new_ank_customer/common/color_const.dart';
+import 'package:new_ank_customer/common/common_styles.dart';
 import 'package:new_ank_customer/common/utils.dart';
-import 'package:new_ank_customer/pages/add_stop1.dart';
+import 'package:new_ank_customer/pages/add_stop2.dart';
 import 'package:new_ank_customer/pages/bookPage/book_vehicle.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
-import 'package:google_place/google_place.dart';
 import 'package:provider/provider.dart';
-import '../common/common_styles.dart';
 
-// import 'ConfirmLocation.dart';
-
-class SearchPage extends StatefulWidget {
-  const SearchPage({
-    Key? key,
-    this.initialLogin = false,
-    this.isPickupLocation = false,
-  }) : super(key: key);
-
-  final bool initialLogin;
-  final bool isPickupLocation;
+class AddStop1 extends StatefulWidget {
+  final String? pickupLoction, dropLocation;
+  const AddStop1({Key? key, this.pickupLoction, this.dropLocation})
+      : super(key: key);
 
   @override
-  _SearchPageState createState() => _SearchPageState();
+  State<AddStop1> createState() => _AddStop1State();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _AddStop1State extends State<AddStop1> {
   late GooglePlace googlePlace;
   List<AutocompletePrediction> predictions = [];
 
@@ -124,9 +117,7 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ),
           ),
-          widget.isPickupLocation
-              ? Text('Enter PickUp Location', style: CommonStyles.black57S17())
-              : Text('Enter Drop Location', style: CommonStyles.black57S17()),
+          Text('Enter Stop Location', style: CommonStyles.black57S17()),
         ],
       ),
     );
@@ -258,11 +249,12 @@ class _SearchPageState extends State<SearchPage> {
                                         Navigator.of(context).push(
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    PlacePickGoogleMaps(
+                                                    AddStop1Map(
+                                                      dropAddress: widget
+                                                          .dropLocation
+                                                          .toString(),
                                                       latitude: locaiton.lat!,
                                                       longitude: locaiton.lng!,
-                                                      initialScreen:
-                                                          widget.initialLogin,
                                                     )));
                                       } else {
                                         Utils.showSnackBar(
@@ -314,28 +306,6 @@ class _SearchPageState extends State<SearchPage> {
                                   ),
                                 ),
                               );
-
-                              // return ListTile(
-                              //   contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
-                              //   dense: true,
-                              //   leading: const Icon(
-                              //     Icons.location_on,
-                              //     color: Colors.black,
-                              //   ),
-                              //   title: Text(
-                              //     predictions[index].description!,
-                              //     style: CommonStyles.black13(),
-                              //   ),
-                              //   subtitle:  Text(
-                              //     predictions[index].description!,
-                              //     style: CommonStyles.black13(),
-                              //   )
-                              //   onTap: () {
-                              //     debugPrint(predictions[index].placeId);
-                              //     Navigator.pushNamed(context, "ConfirmLocation",
-                              //         arguments: predictions[index].description);
-                              //   },
-                              // );
                             },
                           ),
                         ),
@@ -343,92 +313,29 @@ class _SearchPageState extends State<SearchPage> {
                     ),
     );
   }
-
-  // buildRecentdrop() {
-  //   return Visibility(
-  //     visible: isvisible,
-  //     child: Container(
-  //       alignment: Alignment.topLeft,
-  //       child: Padding(
-  //         padding: const EdgeInsets.only(top: 5, left: 15),
-  //         child: Text(
-  //           'Recent drops',
-  //           style: TextStyle(
-  //               fontSize: 12,
-  //               color: Colors.black,
-  //               fontWeight: FontWeight.w500,
-  //               letterSpacing: 0),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // buildRecentdropList() {
-  //   return Expanded(
-  //     flex: 1,
-  //     child: Container(
-  //       child: ListView.builder(
-  //           physics: BouncingScrollPhysics(),
-  //           itemCount: 2,
-  //           itemBuilder: (BuildContext context, int index) {
-  //             return Padding(
-  //               padding: const EdgeInsets.only(top: 0),
-  //               child: InkWell(
-  //                 onTap: () {
-  //                   Navigator.pushNamed(context, 'ConfirmLocation');
-  //                 },
-  //                 child: ListTile(
-  //                     leading: Icon(
-  //                       Icons.timelapse_rounded,
-  //                       size: 35,
-  //                     ),
-  //                     title: Text('Govindraja Nagar',
-  //                         style: TextStyle(
-  //                             fontSize: 15,
-  //                             color: Colors.black,
-  //                             fontWeight: FontWeight.w800,
-  //                             letterSpacing: 0)),
-  //                     subtitle: Text(
-  //                       'CHBS LAYOUT, MC LAYOUT,VIJAYANAGAR',
-  //                       style: TextStyle(
-  //                           fontSize: 8,
-  //                           color: Colors.black,
-  //                           fontWeight: FontWeight.w400,
-  //                           letterSpacing: 0),
-  //                     ),
-  //                     trailing:
-  //                         IconButton(icon: Icon(Icons.star), onPressed: () {})),
-  //               ),
-  //             );
-  //           }),
-  //     ),
-  //   );
-  // }
 }
 
-class PlacePickGoogleMaps extends StatefulWidget {
-  const PlacePickGoogleMaps(
+class AddStop1Map extends StatefulWidget {
+  const AddStop1Map(
       {Key? key,
       this.latitude,
       this.longitude,
       this.initialScreen = false,
-      this.addStop = false})
+      required this.dropAddress})
       : super(key: key);
-
   final double? latitude, longitude;
   final bool initialScreen;
-  final bool addStop;
+  final String dropAddress;
 
   @override
-  _PlacePickGoogleMapsState createState() => _PlacePickGoogleMapsState();
+  State<AddStop1Map> createState() => _AddStop1MapState();
 }
 
-class _PlacePickGoogleMapsState extends State<PlacePickGoogleMaps> {
+class _AddStop1MapState extends State<AddStop1Map> {
   Location location = Location();
 
-  TextEditingController controllerAddress = TextEditingController();
-  TextEditingController administrativeArea = TextEditingController();
+  TextEditingController stop1Address = TextEditingController();
+  TextEditingController stop1area = TextEditingController();
 
   late LatLng latLngCamera;
 
@@ -464,7 +371,6 @@ class _PlacePickGoogleMapsState extends State<PlacePickGoogleMaps> {
 
   @override
   Widget build(BuildContext context) {
-    print("add Stop Selection address ---------" + widget.addStop.toString());
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
@@ -540,11 +446,11 @@ class _PlacePickGoogleMapsState extends State<PlacePickGoogleMaps> {
                         ),
                       ),
                     )
-                  : ReverseGeoCodingTextFormField(
-                      latitude: latLngCamera.latitude,
-                      longitude: latLngCamera.longitude,
-                      administrativeArea: administrativeArea,
-                      toAddress: controllerAddress,
+                  : AddStop1ReverseGeoCodingTextFormField(
+                      addstop1latitude: latLngCamera.latitude,
+                      addstop1longitude: latLngCamera.longitude,
+                      addstop1administrativeArea: stop1area,
+                      stop1Address: stop1Address,
                     ))
         ],
       ),
@@ -568,7 +474,7 @@ class _PlacePickGoogleMapsState extends State<PlacePickGoogleMaps> {
                                 topLeft: Radius.circular(12),
                                 topRight: Radius.circular(12))),
                         context: context,
-                        builder: (context) => ShowDetails());
+                        builder: (context) => AddStop1ShowDetails());
 
                     if (result['name'] == "" ||
                         result['name'] == null ||
@@ -589,10 +495,11 @@ class _PlacePickGoogleMapsState extends State<PlacePickGoogleMaps> {
                                   topLeft: Radius.circular(12),
                                   topRight: Radius.circular(12))),
                           builder: (context) {
-                            return VerifyAddressBottomSheet(
-                              toAddress: controllerAddress.text,
+                            return AddStop1VerifyAddressBottomSheet(
+                              dropAddres: widget.dropAddress,
+                              stop1Address: stop1Address.text,
                               toLatitude: latLngCamera.latitude,
-                              toState: administrativeArea.text,
+                              toState: stop1area.text,
                               toLongitude: latLngCamera.longitude,
                               pickUpContactName: result['name'],
                               pickUpContactNumber: result['phone'],
@@ -609,53 +516,54 @@ class _PlacePickGoogleMapsState extends State<PlacePickGoogleMaps> {
       ),
     );
   }
-
-  final globalFormKey = GlobalKey<FormState>();
-
-  enterNameAndPhoneNumber() {
-    return Form(
-      key: globalFormKey,
-      child: Column(
-        children: [
-          TextFormField(),
-          TextFormField(),
-        ],
-      ),
-    );
-  }
 }
 
-class VerifyAddressBottomSheet extends StatefulWidget {
-  VerifyAddressBottomSheet(
+class AddStop1VerifyAddressBottomSheet extends StatefulWidget {
+  AddStop1VerifyAddressBottomSheet(
       {Key? key,
-      required this.toAddress,
+      required this.stop1Address,
+      required this.dropAddres,
       required this.toLatitude,
       required this.toLongitude,
       required this.toState,
       required this.pickUpContactName,
       required this.pickUpContactNumber})
       : super(key: key);
-  final String toAddress, toState, pickUpContactName, pickUpContactNumber;
+  final String dropAddres,
+      stop1Address,
+      toState,
+      pickUpContactName,
+      pickUpContactNumber;
   final double toLatitude, toLongitude;
 
   @override
-  _VerifyAddressBottomSheetState createState() =>
-      _VerifyAddressBottomSheetState();
+  _AddStop1VerifyAddressBottomSheetState createState() =>
+      _AddStop1VerifyAddressBottomSheetState();
 }
 
-class _VerifyAddressBottomSheetState extends State<VerifyAddressBottomSheet> {
+class _AddStop1VerifyAddressBottomSheetState
+    extends State<AddStop1VerifyAddressBottomSheet> {
   List<Model> list = [];
 
   @override
   void initState() {
     super.initState();
-    initialize();
+    addLocationMethod();
+    //   initialize();
   }
 
-  initialize() {
+/*  initialize() {
     list.clear();
     list.add(Model(SharedPreference.currentAddress!, Colors.green));
-    list.add(Model(widget.toAddress, Colors.red));
+    list.add(Model(widget.stop1Address, Colors.red));
+  }*/
+
+  List<String> addLocationList = [];
+
+  addLocationMethod() {
+    addLocationList.add(SharedPreference.currentAddress!);
+    addLocationList.add(widget.dropAddres);
+    addLocationList.add(widget.stop1Address);
   }
 
   @override
@@ -672,7 +580,69 @@ class _VerifyAddressBottomSheetState extends State<VerifyAddressBottomSheet> {
               style: CommonStyles.blue18900(),
             ),
           ),
-          Padding(
+          Expanded(
+            child: ReorderableListView(
+                children: /*List.generate(addedLocations.length, (index) {
+                  return Container(
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    child: Card(
+                      child: Row(
+                        children: [
+                          Expanded(
+                              flex: 2, child: Icon(Icons.location_history)),
+                          Expanded(
+                            flex: 5,
+                            child: Text(
+                              addedLocations[index],
+                              style: CommonStyles.blue14900(),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(index.toString(),
+                                style: CommonStyles.blue14900()),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),*/
+
+                    addLocationList
+                        .map((task) => Container(
+                              key: ValueKey(task),
+                              child: Card(
+                                elevation: 10,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.all(8),
+                                  leading: const Icon(Icons.location_history),
+                                  title: Text(
+                                    task,
+                                    style: CommonStyles.blue14900(),
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  //   trailing: Text(addedLocations.),
+                                ),
+                              ),
+                            ))
+                        .toList(),
+                // The reorder function
+                onReorder: (oldIndex, newIndex) {
+                  setState(() {
+                    if (newIndex > oldIndex) {
+                      newIndex -= 1;
+                    }
+                    final element = addLocationList.removeAt(oldIndex);
+                    addLocationList.insert(newIndex, element);
+                  });
+                }),
+          ),
+          /* Padding(
             padding: const EdgeInsets.symmetric(vertical: 15.0),
             child: ListView.builder(
                 itemCount: list.length,
@@ -732,7 +702,8 @@ class _VerifyAddressBottomSheetState extends State<VerifyAddressBottomSheet> {
                           ]),
                         );
                 }),
-          ),
+          ),*/
+
           Padding(
             padding: const EdgeInsets.only(
               top: 12.0,
@@ -747,20 +718,11 @@ class _VerifyAddressBottomSheetState extends State<VerifyAddressBottomSheet> {
                     height: 40,
                     onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => AddStop1(
-                                pickupLoction: list[0].address,
-                                dropLocation: widget.toAddress,
-                              )
-                          /*MultiStopScreen(
-                                pickUpLocation: list[0].address,
-                                dropLocation: widget.toAddress,
-                                toLat: widget.toLatitude,
-                                toLong: widget.toLongitude,
-                                pickUpContactName: widget.pickUpContactName,
-                                pickUpContactNumber: widget.pickUpContactNumber,
-                                toState: widget.toState,
-                              )*/
-                          ));
+                          builder: (context) => AddStop2(
+                                dropLocation: widget.dropAddres,
+                                pickupLoction: SharedPreference.currentAddress,
+                                stop1Location: widget.stop1Address,
+                              )));
                     },
                     child: Center(
                       child: Text(
@@ -779,11 +741,11 @@ class _VerifyAddressBottomSheetState extends State<VerifyAddressBottomSheet> {
                                 fromAddress: list[0].address,
                                 toLatitude: widget.toLatitude,
                                 toLongitude: widget.toLongitude,
-                                toAddress: widget.toAddress,
+                                toAddress: widget.stop1Address,
                                 toState: widget.toState,
                                 pickupContactName: widget.pickUpContactName,
                                 pickupContactPhone: widget.pickUpContactNumber,
-                                stop1: "",
+                                stop1: widget.stop1Address,
                                 stop2: "",
                                 stop3: "",
                               )));
@@ -800,33 +762,19 @@ class _VerifyAddressBottomSheetState extends State<VerifyAddressBottomSheet> {
         ],
       ),
     );
-
-    // Scaffold(
-    //     appBar: AppBar(
-    //         backgroundColor: Colors.black,
-    //         title:
-    //             Text('Custom Stepper', style: TextStyle(color: Colors.white)),
-    //         actions: [
-    //           IconButton(
-    //               icon: Icon(Icons.add_circle, color: Colors.white),
-    //               onPressed: addNew)
-    //         ]),
-    //     body:
-
-    //     );
   }
 
   String? fromAddress;
 }
 
-class ShowDetails extends StatefulWidget {
-  ShowDetails({Key? key}) : super(key: key);
+class AddStop1ShowDetails extends StatefulWidget {
+  AddStop1ShowDetails({Key? key}) : super(key: key);
 
   @override
-  _ShowDetailsState createState() => _ShowDetailsState();
+  _AddStop1ShowDetailsState createState() => _AddStop1ShowDetailsState();
 }
 
-class _ShowDetailsState extends State<ShowDetails> {
+class _AddStop1ShowDetailsState extends State<AddStop1ShowDetails> {
   final nameController = TextEditingController();
   final nameKey = GlobalKey<FormState>();
 
@@ -853,7 +801,7 @@ class _ShowDetailsState extends State<ShowDetails> {
               padding: const EdgeInsets.only(top: 12.0, left: 8, bottom: 8),
               child: Center(
                 child: Text(
-                  "Driver will call this contact at Drop Location",
+                  "Driver will call this contact at Stop Location",
                   style: CommonStyles.blue14900(),
                 ),
               ),
@@ -1032,38 +980,38 @@ class _ShowDetailsState extends State<ShowDetails> {
     return "";
   }
 
-  // Future<String> openContactBook() async {
-  //   Contact contact = await ContactPicker().selectContact();
-  //   if (contact != null) {
+// Future<String> openContactBook() async {
+//   Contact contact = await ContactPicker().selectContact();
+//   if (contact != null) {
 
-  //     return phoneNumber;
-  //   }
-  //   return "";
-  // }
+//     return phoneNumber;
+//   }
+//   return "";
+// }
 }
 
-class ReverseGeoCodingTextFormField extends StatefulWidget {
-  ReverseGeoCodingTextFormField(
+class AddStop1ReverseGeoCodingTextFormField extends StatefulWidget {
+  AddStop1ReverseGeoCodingTextFormField(
       {Key? key,
-      required this.latitude,
-      required this.longitude,
-      required this.toAddress,
-      required this.administrativeArea,
+      required this.addstop1latitude,
+      required this.addstop1longitude,
+      required this.stop1Address,
+      required this.addstop1administrativeArea,
       this.addStop = false})
       : super(key: key);
-  final double latitude, longitude;
-  final TextEditingController toAddress;
+  final double addstop1latitude, addstop1longitude;
+  final TextEditingController stop1Address;
 
-  final TextEditingController administrativeArea;
+  final TextEditingController addstop1administrativeArea;
   bool addStop;
 
   @override
-  _ReverseGeoCodingTextFormFieldState createState() =>
-      _ReverseGeoCodingTextFormFieldState();
+  _AddStop1ReverseGeoCodingTextFormFieldState createState() =>
+      _AddStop1ReverseGeoCodingTextFormFieldState();
 }
 
-class _ReverseGeoCodingTextFormFieldState
-    extends State<ReverseGeoCodingTextFormField> {
+class _AddStop1ReverseGeoCodingTextFormFieldState
+    extends State<AddStop1ReverseGeoCodingTextFormField> {
   @override
   void initState() {
     initialize();
@@ -1071,12 +1019,16 @@ class _ReverseGeoCodingTextFormFieldState
   }
 
   initialize() async {
-    await geocoding.GeocodingPlatform.instance
-        .placemarkFromCoordinates(widget.latitude, widget.longitude);
+    await geocoding.GeocodingPlatform.instance.placemarkFromCoordinates(
+        widget.addstop1longitude, widget.addstop1longitude);
   }
 
   @override
   Widget build(BuildContext context) {
+    print("add stop --------Reverse Text--" + widget.addStop.toString());
+
+    print("Address ----------- controllerAddress" +
+        widget.stop1Address.text.toString());
     return Container(
       height: 100,
       width: deviceWidth(context) * 0.9,
@@ -1096,7 +1048,8 @@ class _ReverseGeoCodingTextFormFieldState
           ),
           FutureBuilder<List<geocoding.Placemark>>(
               future: geocoding.GeocodingPlatform.instance
-                  .placemarkFromCoordinates(widget.latitude, widget.longitude),
+                  .placemarkFromCoordinates(
+                      widget.addstop1latitude, widget.addstop1longitude),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -1110,7 +1063,7 @@ class _ReverseGeoCodingTextFormFieldState
                   );
                 }
                 if (snapshot.data != null) {
-                  widget.toAddress.text = snapshot.data!.first.street! +
+                  widget.stop1Address.text = snapshot.data!.first.street! +
                       ", " +
                       snapshot.data!.first.subLocality! +
                       ", " +
@@ -1119,16 +1072,16 @@ class _ReverseGeoCodingTextFormFieldState
                       snapshot.data!.first.postalCode! +
                       ", " +
                       snapshot.data!.first.administrativeArea!;
-                  widget.administrativeArea.text =
+                  widget.addstop1administrativeArea.text =
                       snapshot.data!.first.administrativeArea!;
                   final url = "https://www.google.co.in/maps/@" +
-                      widget.latitude.toString() +
+                      widget.addstop1latitude.toString() +
                       "," +
-                      widget.longitude.toString() +
+                      widget.addstop1longitude.toString() +
                       ",19z";
                   print(url);
                 } else {
-                  widget.toAddress.text = "No Address Found";
+                  widget.stop1Address.text = "No Address Found";
                 }
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1136,7 +1089,7 @@ class _ReverseGeoCodingTextFormFieldState
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        widget.toAddress.text,
+                        widget.stop1Address.text,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 3,
                         style: CommonStyles.whiteText12BoldW500(),
@@ -1150,32 +1103,3 @@ class _ReverseGeoCodingTextFormFieldState
     );
   }
 }
-
-/*class ChangeMapsStateProvider with ChangeNotifier {
-  double _latitude = 0.00;
-  double _longitude = 0.00;
-
-  void setLatitudeLongitude(double latitude, double longitude) {
-    _latitude = latitude;
-    _longitude = longitude;
-    notifyListeners();
-  }
-
-  double get latitude => _latitude;
-
-  double get longitude => _longitude;
-}
-
-class LocationReviewPage extends StatefulWidget {
-  const LocationReviewPage({Key? key}) : super(key: key);
-
-  @override
-  _LocationReviewPageState createState() => _LocationReviewPageState();
-}
-
-class _LocationReviewPageState extends State<LocationReviewPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}*/

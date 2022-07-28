@@ -382,6 +382,7 @@ class _HomePageState extends State<HomePage> {
                           builder: (context) => const SearchPage(
                                 initialLogin: true,
                                 isPickupLocation: true,
+
                               )));
                   // final String result = await Navigator.of(context)
                   //     .push(MaterialPageRoute(builder: (context) {

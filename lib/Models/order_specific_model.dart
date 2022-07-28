@@ -35,7 +35,7 @@ class OrderHistory {
   TripDetails? tripDetails;
   String? goodTypeDetails;
   VechileDetails? vechileDetails;
-  Null? driverDetails;
+  DriverDetails? driverDetails;
   String? customerName;
   String? customerMobile;
   String? bookedDate;
@@ -67,7 +67,9 @@ class OrderHistory {
     vechileDetails = json['vechile_details'] != null
         ? new VechileDetails.fromJson(json['vechile_details'])
         : null;
-    driverDetails = json['driver_details'];
+    driverDetails = json['driver_details'] != null
+        ? new DriverDetails.fromJson(json['driver_details'])
+        : null;
     customerName = json['customer_name'];
     customerMobile = json['customer_mobile'];
     bookedDate = json['booked_date'];
@@ -87,7 +89,9 @@ class OrderHistory {
     if (this.vechileDetails != null) {
       data['vechile_details'] = this.vechileDetails!.toJson();
     }
-    data['driver_details'] = this.driverDetails;
+    if (this.driverDetails != null) {
+      data['driver_details'] = this.driverDetails!.toJson();
+    }
     data['customer_name'] = this.customerName;
     data['customer_mobile'] = this.customerMobile;
     data['booked_date'] = this.bookedDate;
@@ -124,7 +128,6 @@ class TripDetails {
   String? labourPrice;
   String? stateStatus;
   String? statePrice;
-  String? waitingCharge;
   String? gst;
   String? tripOtp;
   String? fromLat;
@@ -190,7 +193,6 @@ class TripDetails {
       this.labourPrice,
       this.stateStatus,
       this.statePrice,
-      this.waitingCharge,
       this.gst,
       this.tripOtp,
       this.fromLat,
@@ -256,7 +258,6 @@ class TripDetails {
     labourPrice = json['labour_price'];
     stateStatus = json['state_status'];
     statePrice = json['state_price'];
-    waitingCharge = json['waiting_charge'];
     gst = json['gst'];
     tripOtp = json['trip_otp'];
     fromLat = json['from_lat'];
@@ -324,7 +325,6 @@ class TripDetails {
     data['labour_price'] = this.labourPrice;
     data['state_status'] = this.stateStatus;
     data['state_price'] = this.statePrice;
-    data['waiting_charge'] = this.waitingCharge;
     data['gst'] = this.gst;
     data['trip_otp'] = this.tripOtp;
     data['from_lat'] = this.fromLat;
@@ -379,10 +379,13 @@ class VechileDetails {
   String? otherStateCharge;
   String? waitingCharge;
   String? serviceCharge;
+  String? serviceTax;
   String? chargeLimit;
   String? basicCharge;
   String? adminCm;
   String? tripKmLimit;
+  String? labourLimit;
+  String? labourPrice;
   String? image;
   String? capacity;
   String? size;
@@ -406,10 +409,13 @@ class VechileDetails {
       this.otherStateCharge,
       this.waitingCharge,
       this.serviceCharge,
+      this.serviceTax,
       this.chargeLimit,
       this.basicCharge,
       this.adminCm,
       this.tripKmLimit,
+      this.labourLimit,
+      this.labourPrice,
       this.image,
       this.capacity,
       this.size,
@@ -433,10 +439,13 @@ class VechileDetails {
     otherStateCharge = json['other_state_charge'];
     waitingCharge = json['waiting_charge'];
     serviceCharge = json['service_charge'];
+    serviceTax = json['service_tax'];
     chargeLimit = json['charge_limit'];
     basicCharge = json['basic_charge'];
     adminCm = json['admin_cm'];
     tripKmLimit = json['trip_km_limit'];
+    labourLimit = json['labour_limit'];
+    labourPrice = json['labour_price'];
     image = json['image'];
     capacity = json['capacity'];
     size = json['size'];
@@ -462,10 +471,13 @@ class VechileDetails {
     data['other_state_charge'] = this.otherStateCharge;
     data['waiting_charge'] = this.waitingCharge;
     data['service_charge'] = this.serviceCharge;
+    data['service_tax'] = this.serviceTax;
     data['charge_limit'] = this.chargeLimit;
     data['basic_charge'] = this.basicCharge;
     data['admin_cm'] = this.adminCm;
     data['trip_km_limit'] = this.tripKmLimit;
+    data['labour_limit'] = this.labourLimit;
+    data['labour_price'] = this.labourPrice;
     data['image'] = this.image;
     data['capacity'] = this.capacity;
     data['size'] = this.size;
@@ -473,6 +485,199 @@ class VechileDetails {
     data['paid_show_status'] = this.paidShowStatus;
     data['payout_days'] = this.payoutDays;
     data['status'] = this.status;
+    data['created_at'] = this.createdAt;
+    data['updated_at'] = this.updatedAt;
+    return data;
+  }
+}
+
+class DriverDetails {
+  String? id;
+  String? vehicleWheelType;
+  String? driverName;
+  String? phoneNo;
+  String? email;
+  String? dob;
+  String? age;
+  String? vehicleNumber;
+  String? profileImage;
+  String? aadharFrontImage;
+  String? aadharBackImage;
+  String? aadharNumber;
+  String? panCardImage;
+  String? panCardNumber;
+  String? drivingLicenseImageFront;
+  String? drivingLicenseImageBack;
+  String? drivingLicenseNumber;
+  String? rcBookImage;
+  String? rcBookNumber;
+  String? insuranceImage;
+  String? accountNumber;
+  String? ifscCode;
+  String? bankName;
+  String? acHolderName;
+  String? upiId;
+  String? bankPassBook;
+  String? latitude;
+  String? longitude;
+  String? stateId;
+  String? address;
+  String? currentLat;
+  String? currentLong;
+  String? stateCity;
+  String? password;
+  String? decryptPassword;
+  String? notification;
+  String? onlineStatus;
+  String? goHomeStatus;
+  String? status;
+  String? deviceToken;
+  String? deviceVersion;
+  String? deviceType;
+  String? deviceModel;
+  String? createdAt;
+  String? updatedAt;
+
+  DriverDetails(
+      {this.id,
+      this.vehicleWheelType,
+      this.driverName,
+      this.phoneNo,
+      this.email,
+      this.dob,
+      this.age,
+      this.vehicleNumber,
+      this.profileImage,
+      this.aadharFrontImage,
+      this.aadharBackImage,
+      this.aadharNumber,
+      this.panCardImage,
+      this.panCardNumber,
+      this.drivingLicenseImageFront,
+      this.drivingLicenseImageBack,
+      this.drivingLicenseNumber,
+      this.rcBookImage,
+      this.rcBookNumber,
+      this.insuranceImage,
+      this.accountNumber,
+      this.ifscCode,
+      this.bankName,
+      this.acHolderName,
+      this.upiId,
+      this.bankPassBook,
+      this.latitude,
+      this.longitude,
+      this.stateId,
+      this.address,
+      this.currentLat,
+      this.currentLong,
+      this.stateCity,
+      this.password,
+      this.decryptPassword,
+      this.notification,
+      this.onlineStatus,
+      this.goHomeStatus,
+      this.status,
+      this.deviceToken,
+      this.deviceVersion,
+      this.deviceType,
+      this.deviceModel,
+      this.createdAt,
+      this.updatedAt});
+
+  DriverDetails.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    vehicleWheelType = json['vehicle_wheel_type'];
+    driverName = json['driver_name'];
+    phoneNo = json['phone_no'];
+    email = json['email'];
+    dob = json['dob'];
+    age = json['age'];
+    vehicleNumber = json['vehicle_number'];
+    profileImage = json['profile_image'];
+    aadharFrontImage = json['aadhar_front_image'];
+    aadharBackImage = json['aadhar_back_image'];
+    aadharNumber = json['aadhar_number'];
+    panCardImage = json['pan_card_image'];
+    panCardNumber = json['pan_card_number'];
+    drivingLicenseImageFront = json['driving_license_image_front'];
+    drivingLicenseImageBack = json['driving_license_image_back'];
+    drivingLicenseNumber = json['driving_license_number'];
+    rcBookImage = json['rc_book_image'];
+    rcBookNumber = json['rc_book_number'];
+    insuranceImage = json['insurance_image'];
+    accountNumber = json['account_number'];
+    ifscCode = json['ifsc_code'];
+    bankName = json['bank_name'];
+    acHolderName = json['ac_holder_name'];
+    upiId = json['upi_id'];
+    bankPassBook = json['bank_pass_book'];
+    latitude = json['latitude'];
+    longitude = json['longitude'];
+    stateId = json['state_id'];
+    address = json['address'];
+    currentLat = json['current_lat'];
+    currentLong = json['current_long'];
+    stateCity = json['state_city'];
+    password = json['password'];
+    decryptPassword = json['decrypt_password'];
+    notification = json['notification'];
+    onlineStatus = json['online_status'];
+    goHomeStatus = json['go_home_status'];
+    status = json['status'];
+    deviceToken = json['device_token'];
+    deviceVersion = json['device_version'];
+    deviceType = json['device_type'];
+    deviceModel = json['device_model'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['vehicle_wheel_type'] = this.vehicleWheelType;
+    data['driver_name'] = this.driverName;
+    data['phone_no'] = this.phoneNo;
+    data['email'] = this.email;
+    data['dob'] = this.dob;
+    data['age'] = this.age;
+    data['vehicle_number'] = this.vehicleNumber;
+    data['profile_image'] = this.profileImage;
+    data['aadhar_front_image'] = this.aadharFrontImage;
+    data['aadhar_back_image'] = this.aadharBackImage;
+    data['aadhar_number'] = this.aadharNumber;
+    data['pan_card_image'] = this.panCardImage;
+    data['pan_card_number'] = this.panCardNumber;
+    data['driving_license_image_front'] = this.drivingLicenseImageFront;
+    data['driving_license_image_back'] = this.drivingLicenseImageBack;
+    data['driving_license_number'] = this.drivingLicenseNumber;
+    data['rc_book_image'] = this.rcBookImage;
+    data['rc_book_number'] = this.rcBookNumber;
+    data['insurance_image'] = this.insuranceImage;
+    data['account_number'] = this.accountNumber;
+    data['ifsc_code'] = this.ifscCode;
+    data['bank_name'] = this.bankName;
+    data['ac_holder_name'] = this.acHolderName;
+    data['upi_id'] = this.upiId;
+    data['bank_pass_book'] = this.bankPassBook;
+    data['latitude'] = this.latitude;
+    data['longitude'] = this.longitude;
+    data['state_id'] = this.stateId;
+    data['address'] = this.address;
+    data['current_lat'] = this.currentLat;
+    data['current_long'] = this.currentLong;
+    data['state_city'] = this.stateCity;
+    data['password'] = this.password;
+    data['decrypt_password'] = this.decryptPassword;
+    data['notification'] = this.notification;
+    data['online_status'] = this.onlineStatus;
+    data['go_home_status'] = this.goHomeStatus;
+    data['status'] = this.status;
+    data['device_token'] = this.deviceToken;
+    data['device_version'] = this.deviceVersion;
+    data['device_type'] = this.deviceType;
+    data['device_model'] = this.deviceModel;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
     return data;

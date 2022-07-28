@@ -51,7 +51,11 @@ class _CancelReasonScreenState extends State<CancelReasonScreen> {
                 Divider(
                   thickness: 1,
                 ),
-                buildListView(cancelReasonAPIProvider),
+                cancelReasonAPIProvider.ifLoading
+                    ? CircularProgressIndicator(
+                        strokeWidth: 0.5,
+                      )
+                    : buildListView(cancelReasonAPIProvider),
                 SizedBox(
                   height: 15,
                 ),
@@ -144,6 +148,10 @@ class _CancelReasonScreenState extends State<CancelReasonScreen> {
                 .id!,
             reasonID: selectedIndex,
             reasonText: reasonController.text);
+
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
 
         Navigator.pushReplacement(
             context,

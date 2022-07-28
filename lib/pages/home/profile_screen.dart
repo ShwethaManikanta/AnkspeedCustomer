@@ -7,6 +7,7 @@ import 'package:new_ank_customer/common/common_styles.dart';
 import 'package:new_ank_customer/pages/home/profile_update_screen.dart';
 import 'package:new_ank_customer/pages/login/Login.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreenMain extends StatefulWidget {
@@ -172,7 +173,7 @@ class _ProfileScreenMainState extends State<ProfileScreenMain> {
                           )
                         ],
                       ),
-                      Container(
+                      /*Container(
                         padding:
                             EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                         decoration: BoxDecoration(
@@ -202,7 +203,7 @@ class _ProfileScreenMainState extends State<ProfileScreenMain> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                      )
+                      )*/
                     ],
                   ),
                   SizedBox(
@@ -262,43 +263,50 @@ class _ProfileScreenMainState extends State<ProfileScreenMain> {
                             ),
                           ],
                         ),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 18, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: ColorConstant.blue800Cc,
-                            borderRadius: BorderRadius.circular(
-                              10.00,
+                        InkWell(
+                          onTap: () {
+                            Share.share(
+                                'https://play.google.com/store/apps/details?id=com.ank_speed.ank_speed_driver',
+                                subject: 'ANK Speed !!!');
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 18, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: ColorConstant.blue800Cc,
+                              borderRadius: BorderRadius.circular(
+                                10.00,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: ColorConstant.black90040,
+                                  spreadRadius: 2.00,
+                                  blurRadius: 2.00,
+                                  offset: Offset(
+                                    0,
+                                    4,
+                                  ),
+                                ),
+                              ],
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: ColorConstant.black90040,
-                                spreadRadius: 2.00,
-                                blurRadius: 2.00,
-                                offset: Offset(
-                                  0,
-                                  4,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.share_sharp,
+                                  color: Colors.white,
                                 ),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.share_sharp,
-                                color: Colors.white,
-                              ),
-                              Text(
-                                "   Invite",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: ColorConstant.whiteA700,
-                                  fontSize: 11,
-                                  fontFamily: 'Roboto',
-                                  fontWeight: FontWeight.w500,
+                                Text(
+                                  "   Invite",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: ColorConstant.whiteA700,
+                                    fontSize: 11,
+                                    fontFamily: 'Roboto',
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         )
                       ],
