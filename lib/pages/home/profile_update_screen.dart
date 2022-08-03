@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:new_ank_customer/Services/apiProvider/registration_api_provider.dart';
 import 'package:new_ank_customer/Services/api_services.dart';
 import 'package:new_ank_customer/common/color_const.dart';
+import 'package:new_ank_customer/common/common_styles.dart';
 import 'package:new_ank_customer/common/utils.dart';
 import 'package:provider/provider.dart';
 
@@ -53,8 +54,8 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
               0.4999999910767653,
             ),
             colors: [
-              ColorConstant.blue800Cc,
-              ColorConstant.purple800Cc,
+              ColorConstant.whiteA700,
+              ColorConstant.whiteA700,
             ],
           ),
         ),
@@ -73,7 +74,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                   },
                   icon: Icon(
                     Icons.arrow_back,
-                    color: Colors.white,
+                    color: Colors.black,
                     size: 30,
                   ),
                 ),
@@ -147,7 +148,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: ColorConstant.whiteA700,
+                color: ColorConstant.black900,
                 fontSize: 14,
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.w400,
@@ -163,8 +164,8 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: ColorConstant.whiteA700,
-                    fontSize: 16,
+                    color: ColorConstant.black900,
+                    fontSize: 18,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w600,
                   ),
@@ -177,7 +178,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: ColorConstant.whiteA700,
+                    color: ColorConstant.black900,
                     fontSize: 12,
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w300,
@@ -186,7 +187,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
               ],
             ),
             SizedBox(
-              height: 20,
+              height: 40,
             ),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
@@ -214,24 +215,20 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                     key: nameKey,
                     child: TextField(
                       controller: nameController,
-                      style: TextStyle(
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(fontSize: 20, color: Colors.black),
                       decoration: InputDecoration(
                           hintText:
                               "${profileAPIProvider.profileViewResponse!.userDetails!.userName}"),
                     ),
                   ),
                   SizedBox(
-                    height: 15,
+                    height: 20,
                   ),
                   Form(
                     key: emailKey,
                     child: TextField(
                       controller: emailController,
-                      style: TextStyle(
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(fontSize: 20, color: Colors.black),
                       decoration: InputDecoration(
                           hintText:
                               "${profileAPIProvider.profileViewResponse!.userDetails!.email}"),
@@ -240,7 +237,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                   SizedBox(
                     height: 30,
                   ),
-                  Text(
+                  /*Text(
                     "GST Details",
                     style: TextStyle(fontSize: 20, color: Colors.black),
                   ),
@@ -275,7 +272,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                             );
                           },
                         ),
-                      )),
+                      )),*/
                 ],
               ),
             )

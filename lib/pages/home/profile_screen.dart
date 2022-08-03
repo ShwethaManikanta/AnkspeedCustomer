@@ -31,247 +31,63 @@ class _ProfileScreenMainState extends State<ProfileScreenMain> {
   Widget build(BuildContext context) {
     final profileAPIProvider = Provider.of<ProfileViewAPIProvider>(context);
 
-    return Scaffold(
-      body: profileAPIProvider.ifLoading ||
-              profileAPIProvider.profileViewResponse == null
-          ? CircularProgressIndicator(
-              strokeWidth: 0.5,
-            )
-          : Container(
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment(
-                    0,
-                    0.5,
-                  ),
-                  end: Alignment(
-                    0.9999999999999999,
-                    0.4999999910767653,
-                  ),
-                  colors: [
-                    ColorConstant.blue800Cc,
-                    ColorConstant.purple800Cc,
-                  ],
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 40,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        profileAPIProvider
-                            .profileViewResponse!.userDetails!.userName!
-                            .toUpperCase(),
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: ColorConstant.whiteA700,
-                          fontSize: 27,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ProfileUpdateScreen()));
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 18, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: ColorConstant.blue800Cc,
-                            borderRadius: BorderRadius.circular(
-                              10.00,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: ColorConstant.black90040,
-                                spreadRadius: 2.00,
-                                blurRadius: 2.00,
-                                offset: Offset(
-                                  0,
-                                  4,
-                                ),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            "Edit",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: ColorConstant.whiteA700,
-                              fontSize: 15,
-                              fontFamily: 'Roboto',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        profileAPIProvider
-                            .profileViewResponse!.userDetails!.mobile!,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: ColorConstant.whiteA700,
-                          fontSize: 15,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 20,
-                      ),
-                      Icon(
-                        Icons.verified,
-                        color: Colors.green,
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            profileAPIProvider
-                                .profileViewResponse!.userDetails!.email!,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: ColorConstant.whiteA700,
-                              fontSize: 15,
-                              fontFamily: 'Roboto',
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Icon(
-                            Icons.mail,
-                            color: Colors.green,
-                          )
-                        ],
-                      ),
-                      /*Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: ColorConstant.blue800Cc,
-                          borderRadius: BorderRadius.circular(
-                            10.00,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: ColorConstant.black90040,
-                              spreadRadius: 2.00,
-                              blurRadius: 2.00,
-                              offset: Offset(
-                                0,
-                                4,
-                              ),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          "Verify",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: ColorConstant.whiteA700,
-                            fontSize: 15,
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      )*/
-                    ],
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: ColorConstant.black90040,
-                          spreadRadius: 2,
-                          blurRadius: 2,
-                          offset: Offset(
-                            0,
-                            4,
-                          ),
-                        ),
-                      ],
+    return SafeArea(
+      child: Scaffold(
+        body: profileAPIProvider.ifLoading ||
+                profileAPIProvider.profileViewResponse == null
+            ? CircularProgressIndicator(
+                strokeWidth: 0.5,
+              )
+            : Container(
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment(
+                      0,
+                      0.5,
                     ),
-                    child: Row(
+                    end: Alignment(
+                      0.9999999999999999,
+                      0.4999999910767653,
+                    ),
+                    colors: [
+                      ColorConstant.whiteA700,
+                      ColorConstant.whiteA700,
+                    ],
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 40,
+                    ),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  "Invite Friends",
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: ColorConstant.blue800Cc,
-                                    fontSize: 18,
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Text(
-                              "If you love what we are Doing,\nPlease spread the word!",
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                color: ColorConstant.black900,
-                                fontSize: 13,
-                                fontFamily: 'Roboto',
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          profileAPIProvider
+                              .profileViewResponse!.userDetails!.userName!
+                              .toUpperCase(),
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: ColorConstant.black900,
+                            fontSize: 27,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        InkWell(
+                        GestureDetector(
                           onTap: () {
-                            Share.share(
-                                'https://play.google.com/store/apps/details?id=com.ank_speed.ank_speed_driver',
-                                subject: 'ANK Speed !!!');
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => ProfileUpdateScreen()));
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(
-                                horizontal: 18, vertical: 10),
+                                horizontal: 18, vertical: 8),
                             decoration: BoxDecoration(
                               color: ColorConstant.blue800Cc,
                               borderRadius: BorderRadius.circular(
@@ -292,15 +108,16 @@ class _ProfileScreenMainState extends State<ProfileScreenMain> {
                             child: Row(
                               children: [
                                 Icon(
-                                  Icons.share_sharp,
+                                  Icons.edit,
+                                  size: 20,
                                   color: Colors.white,
                                 ),
                                 Text(
-                                  "   Invite",
+                                  "   Edit",
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: ColorConstant.whiteA700,
-                                    fontSize: 11,
+                                    fontSize: 15,
                                     fontFamily: 'Roboto',
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -311,149 +128,98 @@ class _ProfileScreenMainState extends State<ProfileScreenMain> {
                         )
                       ],
                     ),
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: ColorConstant.black90040,
-                          spreadRadius: 2,
-                          blurRadius: 2,
-                          offset: Offset(
-                            0,
-                            4,
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          profileAPIProvider
+                              .profileViewResponse!.userDetails!.mobile!,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: ColorConstant.black900,
+                            fontSize: 15,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
+                        SizedBox(
+                          width: 20,
+                        ),
+                        Icon(
+                          Icons.verified,
+                          color: Colors.green,
+                        )
                       ],
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      "Contact Us",
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: ColorConstant.blue800Cc,
-                                        fontSize: 18,
-                                        fontFamily: 'Roboto',
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  "For any queries or help",
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.start,
-                                  style: TextStyle(
-                                    color: ColorConstant.black900,
-                                    fontSize: 13,
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            InkWell(
-                              onTap: () => launch("tel://21213123123"),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 18, vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: ColorConstant.blue800Cc,
-                                  borderRadius: BorderRadius.circular(
-                                    10.00,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: ColorConstant.black90040,
-                                      spreadRadius: 2.00,
-                                      blurRadius: 2.00,
-                                      offset: Offset(
-                                        0,
-                                        4,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.call,
-                                      color: Colors.white,
-                                    ),
-                                    Text(
-                                      "   Call Us",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: ColorConstant.whiteA700,
-                                        fontSize: 11,
-                                        fontFamily: 'Roboto',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                            Text(
+                              profileAPIProvider
+                                  .profileViewResponse!.userDetails!.email!,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: ColorConstant.black900,
+                                fontSize: 15,
+                                fontFamily: 'Roboto',
+                                fontWeight: FontWeight.w600,
                               ),
-                            )
+                            ),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            /*Icon(
+                              Icons.mail,
+                              color: Colors.green,
+                            )*/
                           ],
                         ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Divider(
-                          thickness: 1,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            _launchEmail("support@ankspeed.in");
-                          },
+                        /*Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: ColorConstant.blue800Cc,
+                            borderRadius: BorderRadius.circular(
+                              10.00,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: ColorConstant.black90040,
+                                spreadRadius: 2.00,
+                                blurRadius: 2.00,
+                                offset: Offset(
+                                  0,
+                                  4,
+                                ),
+                              ),
+                            ],
+                          ),
                           child: Text(
-                            "Mail us at support@ankspeed.in",
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.left,
+                            "Verify",
+                            textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: ColorConstant.deepPurple700,
-                              fontSize: 12,
+                              color: ColorConstant.whiteA700,
+                              fontSize: 15,
                               fontFamily: 'Roboto',
-                              fontWeight: FontWeight.w400,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ),
+                        )*/
                       ],
                     ),
-                  ),
-                  /*SizedBox(
-                    height: 40,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => HistoryScreen()));
-                    },
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
+                    SizedBox(
+                      height: 40,
+                    ),
+                    Container(
                       padding:
                           EdgeInsets.symmetric(horizontal: 10, vertical: 20),
                       decoration: BoxDecoration(
@@ -471,47 +237,309 @@ class _ProfileScreenMainState extends State<ProfileScreenMain> {
                           ),
                         ],
                       ),
-                      child: Text(
-                        "History",
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          color: ColorConstant.black900,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Contact Us",
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: ColorConstant.blue800Cc,
+                                          fontSize: 18,
+                                          fontFamily: 'Roboto',
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(
+                                    "For any queries or help",
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      color: ColorConstant.black900,
+                                      fontSize: 13,
+                                      fontFamily: 'Roboto',
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              InkWell(
+                                onTap: () => launch("tel://21213123123"),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 18, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: ColorConstant.blue800Cc,
+                                    borderRadius: BorderRadius.circular(
+                                      10.00,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: ColorConstant.black90040,
+                                        spreadRadius: 2.00,
+                                        blurRadius: 2.00,
+                                        offset: Offset(
+                                          0,
+                                          4,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.call,
+                                        color: Colors.white,
+                                      ),
+                                      Text(
+                                        "   Call Us",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: ColorConstant.whiteA700,
+                                          fontSize: 11,
+                                          fontFamily: 'Roboto',
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Divider(
+                            thickness: 1,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          InkWell(
+                            onTap: () {
+                              _launchEmail("support@ankspeed.in");
+                            },
+                            child: Text(
+                              "Mail us at support@ankspeed.in",
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                color: ColorConstant.deepPurple700,
+                                fontSize: 12,
+                                fontFamily: 'Roboto',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 40,
+                    ),
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: ColorConstant.black90040,
+                            spreadRadius: 2,
+                            blurRadius: 2,
+                            offset: Offset(
+                              0,
+                              4,
+                            ),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    "Invite Friends",
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: ColorConstant.blue800Cc,
+                                      fontSize: 18,
+                                      fontFamily: 'Roboto',
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                "If you love what we are Doing,\nPlease spread the word!",
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.start,
+                                style: TextStyle(
+                                  color: ColorConstant.black900,
+                                  fontSize: 13,
+                                  fontFamily: 'Roboto',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Share.share(
+                                  'https://play.google.com/store/apps/details?id=com.ank_speed.ank_speed_driver',
+                                  subject: 'ANK Speed !!!');
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 18, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: ColorConstant.blue800Cc,
+                                borderRadius: BorderRadius.circular(
+                                  10.00,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ColorConstant.black90040,
+                                    spreadRadius: 2.00,
+                                    blurRadius: 2.00,
+                                    offset: Offset(
+                                      0,
+                                      4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.share_sharp,
+                                    color: Colors.white,
+                                  ),
+                                  Text(
+                                    "   Invite",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: ColorConstant.whiteA700,
+                                      fontSize: 11,
+                                      fontFamily: 'Roboto',
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 40,
+                    ),
+
+                    /*SizedBox(
+                      height: 40,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => HistoryScreen()));
+                      },
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: ColorConstant.black90040,
+                              spreadRadius: 2,
+                              blurRadius: 2,
+                              offset: Offset(
+                                0,
+                                4,
+                              ),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          "History",
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: ColorConstant.black900,
+                          ),
                         ),
                       ),
+                    ),*/
+                    SizedBox(
+                      height: 60,
                     ),
-                  ),*/
-                  SizedBox(
-                    height: 40,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      showAlertDialog(context);
-                    },
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: ColorConstant.black90040,
-                            spreadRadius: 2,
-                            blurRadius: 2,
-                            offset: Offset(
-                              0,
-                              4,
+                    InkWell(
+                      onTap: () {
+                        showAlertDialog(context);
+                      },
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 55),
+                        width: MediaQuery.of(context).size.width,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: ColorConstant.black90040,
+                              spreadRadius: 2,
+                              blurRadius: 2,
+                              offset: Offset(
+                                0,
+                                4,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        child: Center(
+                            child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.logout),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text("LOGOUT", style: CommonStyles.blackS18()),
+                          ],
+                        )),
                       ),
-                      child: Text("LOGOUT", style: CommonStyles.blue18900()),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 

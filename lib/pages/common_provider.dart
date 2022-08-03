@@ -271,9 +271,10 @@ class HomePageProvider with ChangeNotifier {
     // Generating the list of coordinates to be used for
     // drawing the polylines
     PolylineResult result = await polylinePoints!.getRouteBetweenCoordinates(
-      "AIzaSyCoCUX3aEbxcwud60ocZ-XcA7D4Ac-aNXE", // Google Maps API Key
+      "AIzaSyDgrOHeCPPtxJVF3GGQvkfZrXllj6Z4HTU", // Google Maps API Key
       PointLatLng(SharedPreference.latitude!, SharedPreference.longitude!),
       PointLatLng(destinationLatitude, destinationLongitude),
+
       travelMode: TravelMode.driving,
     );
     polylineCoordinates.clear();

@@ -1,4 +1,5 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -23,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   LatLng _initialcameraposition = LatLng(20.5937, 78.9629);
   GoogleMapController? _controller;
   final Location _location = Location();
+  final CarouselController controller = CarouselController();
 
   bool selectRideScreen = false;
 
@@ -43,6 +45,12 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  List<String> imageBanner = [
+    "assets/b1.jpg",
+    "assets/b2.jpg",
+    "assets/b3.jpg",
+  ];
 
   bool isvisible = false;
   void showToast() {
@@ -87,7 +95,7 @@ class _HomePageState extends State<HomePage> {
         buildMapPickLocation(),
         DraggableScrollableSheet(
             minChildSize: 0.4,
-            maxChildSize: 0.95,
+            maxChildSize: 0.4,
             initialChildSize: 0.4,
             expand: true,
             snap: false,
@@ -99,54 +107,52 @@ class _HomePageState extends State<HomePage> {
                     color: Colors.white,
                     child: Column(
                       children: [
-                        Container(
+/* Container(
                           decoration: BoxDecoration(
                               color: Colors.lightBlue[100],
                               borderRadius: BorderRadius.circular(10)),
                           height: 60,
                           width: MediaQuery.of(context).size.width,
                           child: Center(
-                            child: Container(
-                              child: DefaultTextStyle(
-                                style: CommonStyles.blue18900(),
-                                child: AnimatedTextKit(
-                                  animatedTexts: [
-                                    ColorizeAnimatedText(
-                                      'No. 1 Leading Logistics Online Services ',
-                                      textStyle: CommonStyles.black15(),
-                                      colors: colorizeColors,
-                                    ),
-                                  ],
-                                  isRepeatingAnimation: true,
-                                  onTap: () {
-                                    print("Tap Event");
-                                  },
-                                ),
+                            child: DefaultTextStyle(
+                              style: CommonStyles.blue18900(),
+                              child: AnimatedTextKit(
+                                animatedTexts: [
+                                  ColorizeAnimatedText(
+                                    'No. 1 Leading Logistics Online Services ',
+                                    textStyle: CommonStyles.black15(),
+                                    colors: colorizeColors,
+                                  ),
+                                ],
+                                isRepeatingAnimation: true,
+                                onTap: () {
+                                  print("Tap Event");
+                                },
                               ),
                             ),
                           ),
                         ),
                         SizedBox(
                           height: 8,
-                        ),
+                        ),*/
                         Container(
-                            margin: EdgeInsets.symmetric(horizontal: 14),
+                            margin: EdgeInsets.symmetric(horizontal: 5),
                             child: buildTab()),
-                        /* SizedBox(
+/* SizedBox(
                           height: 2,
                         ),*/
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: 0.0, horizontal: 5),
+                              vertical: 0.0, horizontal: 10),
                           child: Card(
-                            //   color: Colors.lightBlue[100],
+//   color: Colors.lightBlue[100],
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)),
                             elevation: 15,
                             margin: EdgeInsets.symmetric(vertical: 10),
                             child: Column(
                               children: [
-                                SizedBox(
+/* SizedBox(
                                   height: 15,
                                 ),
                                 Container(
@@ -162,8 +168,45 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 SizedBox(
                                   height: 15,
-                                ),
-                                Card(
+                                ),*/
+                                CarouselSlider.builder(
+                                    carouselController: controller,
+                                    itemCount: imageBanner.length,
+                                    itemBuilder:
+                                        (context, currentIndex, realIndex) {
+                                      return Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.95,
+                                        height: 150,
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 0, vertical: 10),
+                                        child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            child: Image.asset(
+                                              imageBanner[currentIndex],
+                                              fit: BoxFit.fill,
+                                            )),
+                                      );
+                                    },
+                                    options: CarouselOptions(
+                                      height: 250,
+                                      autoPlay: true,
+                                      pageSnapping: true,
+                                      autoPlayCurve: Curves.easeInOut,
+// enableInfiniteScroll: false,
+//  enlargeStrategy: CenterPageEnlargeStrategy.height,
+//   viewportFraction: 1,
+                                      enlargeCenterPage: true,
+//    initialPage: 0,
+// aspectRatio: 16/9,
+                                      autoPlayInterval: Duration(seconds: 2),
+                                      onPageChanged: (index, reason) =>
+                                          setState(() => activeIndex = index),
+                                    )),
+
+/*   Card(
                                   elevation: 5,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(30)),
@@ -207,7 +250,7 @@ class _HomePageState extends State<HomePage> {
                                       fit: BoxFit.fill,
                                     ),
                                   ),
-                                ),
+                                ),*/
                                 SizedBox(
                                   height: 15,
                                 ),
@@ -215,7 +258,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-                        Container(
+/* Container(
                           width: MediaQuery.of(context).size.width,
                           child: Card(
                             elevation: 5,
@@ -239,7 +282,7 @@ class _HomePageState extends State<HomePage> {
                               ],
                             ),
                           ),
-                        ),
+                        ),*/
                         SizedBox(
                           height: 3,
                         ),
@@ -253,6 +296,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  int activeIndex = 1;
+  bool _isWidgetLoading = false;
+
   buildMap() {
     return GoogleMap(
       initialCameraPosition: CameraPosition(target: _initialcameraposition),
@@ -261,20 +307,34 @@ class _HomePageState extends State<HomePage> {
       // polylines: Set<Polyline>.of(homePageProvider.polylines.values),
       onMapCreated: _onMapCreated,
       myLocationEnabled: true,
+
       mapToolbarEnabled: false,
+      onCameraIdle: () {
+        setState(() {
+          _isWidgetLoading = false;
+        });
+      },
+      onCameraMove: (value) {
+        _initialcameraposition = value.target;
+      },
+      onCameraMoveStarted: () {
+        setState(() {
+          _isWidgetLoading = true;
+        });
+      },
     );
   }
 
   buildMapPickLocation() {
     return Positioned(
-      top: (deviceHeight(context) - 35 - 35 - 60) / 2,
-      right: (deviceWidth(context) - 35) / 2,
+      top: (deviceHeight(context) - 33 - 33 - 50) / 2,
+      right: (deviceWidth(context) - 33) / 2,
       child: const Align(
         alignment: Alignment.center,
         child: Icon(
           FontAwesomeIcons.mapPin,
-          color: Colors.blue,
-          size: 35,
+          color: Colors.green,
+          size: 28,
         ),
       ),
     );
@@ -300,13 +360,13 @@ class _HomePageState extends State<HomePage> {
           child: Container(
             decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: ColorConstant.blue800Cc,
+                color: ColorConstant.whiteA700,
                 border: Border.all(color: Colors.blue)),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Icon(
                 Icons.my_location_outlined,
-                color: Colors.white.withOpacity(0.95),
+                color: Colors.black.withOpacity(0.95),
               ),
             ),
           ),
@@ -375,14 +435,13 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               Utils.getSizedBox(width: 3),
-              InkWell(
+              /*  InkWell(
                 onTap: () async {
                   final String result =
                       await Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => const SearchPage(
                                 initialLogin: true,
                                 isPickupLocation: true,
-
                               )));
                   // final String result = await Navigator.of(context)
                   //     .push(MaterialPageRoute(builder: (context) {
@@ -414,7 +473,7 @@ class _HomePageState extends State<HomePage> {
                     )
                   ],
                 ),
-              )
+              )*/
             ],
           ),
         ),
@@ -425,7 +484,7 @@ class _HomePageState extends State<HomePage> {
   Widget buildTab() {
     return Container(
       height: 60,
-      decoration: BoxDecoration(
+      /* decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
             spreadRadius: 10,
@@ -434,11 +493,11 @@ class _HomePageState extends State<HomePage> {
             color: Colors.lightBlue.shade50,
           )
         ],
-      ),
+      ),*/
       child: Card(
         elevation: 20,
         color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         child: Padding(
           padding:
               const EdgeInsets.only(top: 8.0, bottom: 8.0, right: 20, left: 20),

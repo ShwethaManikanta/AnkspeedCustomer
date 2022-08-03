@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttercontactpicker/fluttercontactpicker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:new_ank_customer/Models/near_driver_list_model.dart';
 import 'package:new_ank_customer/Services/apiProvider/registration_api_provider.dart';
 import 'package:new_ank_customer/Services/location_services.dart/loaction_shared_preference.dart';
 import 'package:new_ank_customer/common/color_const.dart';
@@ -12,6 +13,7 @@ import 'package:new_ank_customer/pages/bookPage/book_vehicle.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:google_place/google_place.dart';
+import 'package:new_ank_customer/pages/common_provider.dart';
 import 'package:provider/provider.dart';
 import '../common/common_styles.dart';
 
@@ -74,8 +76,8 @@ class _SearchPageState extends State<SearchPage> {
             0.4999999910767653,
           ),
           colors: [
-            ColorConstant.blue800Cc,
-            ColorConstant.purple800Cc,
+            ColorConstant.whiteA700,
+            ColorConstant.whiteA7007f,
           ],
         ),
       ),
@@ -188,7 +190,7 @@ class _SearchPageState extends State<SearchPage> {
                 children: [
                   Text(
                     "Search your locaiton on search box",
-                    style: CommonStyles.whiteText15BoldW500(),
+                    style: CommonStyles.black12reg(),
                   )
                 ],
               ),
@@ -294,8 +296,8 @@ class _SearchPageState extends State<SearchPage> {
                                               Text(
                                                 predictions[index].description!,
                                                 maxLines: 2,
-                                                style: CommonStyles
-                                                    .whiteText16BoldW500(),
+                                                style:
+                                                    CommonStyles.black57S17(),
                                               ),
                                               Utils.getSizedBox(
                                                 height: 5,
@@ -568,7 +570,12 @@ class _PlacePickGoogleMapsState extends State<PlacePickGoogleMaps> {
                                 topLeft: Radius.circular(12),
                                 topRight: Radius.circular(12))),
                         context: context,
-                        builder: (context) => ShowDetails());
+                        builder: (context) => ShowDetails(
+                              toAddress: controllerAddress.text,
+                              toLatitude: widget.latitude!,
+                              toLongitude: widget.longitude!,
+                              toState: administrativeArea.text,
+                            ));
 
                     if (result['name'] == "" ||
                         result['name'] == null ||
@@ -605,7 +612,7 @@ class _PlacePickGoogleMapsState extends State<PlacePickGoogleMaps> {
           "Select Location",
           style: CommonStyles.whiteText15BoldW500(),
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       ),
     );
   }
@@ -750,6 +757,8 @@ class _VerifyAddressBottomSheetState extends State<VerifyAddressBottomSheet> {
                           builder: (context) => AddStop1(
                                 pickupLoction: list[0].address,
                                 dropLocation: widget.toAddress,
+                                toLat: widget.toLatitude,
+                                toLong: widget.toLongitude,
                               )
                           /*MultiStopScreen(
                                 pickUpLocation: list[0].address,
@@ -776,6 +785,8 @@ class _VerifyAddressBottomSheetState extends State<VerifyAddressBottomSheet> {
                     onPressed: () {
                       Navigator.of(context).pushReplacement(MaterialPageRoute(
                           builder: (context) => BookVehiclePage(
+                                fromLat: SharedPreference.latitude!,
+                                fromLong: SharedPreference.longitude!,
                                 fromAddress: list[0].address,
                                 toLatitude: widget.toLatitude,
                                 toLongitude: widget.toLongitude,
@@ -783,9 +794,6 @@ class _VerifyAddressBottomSheetState extends State<VerifyAddressBottomSheet> {
                                 toState: widget.toState,
                                 pickupContactName: widget.pickUpContactName,
                                 pickupContactPhone: widget.pickUpContactNumber,
-                                stop1: "",
-                                stop2: "",
-                                stop3: "",
                               )));
                     },
                     child: Center(
@@ -820,7 +828,16 @@ class _VerifyAddressBottomSheetState extends State<VerifyAddressBottomSheet> {
 }
 
 class ShowDetails extends StatefulWidget {
-  ShowDetails({Key? key}) : super(key: key);
+  ShowDetails({
+    Key? key,
+    required this.toAddress,
+    required this.toLatitude,
+    required this.toLongitude,
+    required this.toState,
+  }) : super(key: key);
+
+  final String toAddress, toState;
+  final double toLatitude, toLongitude;
 
   @override
   _ShowDetailsState createState() => _ShowDetailsState();
@@ -984,7 +1001,17 @@ class _ShowDetailsState extends State<ShowDetails> {
                       'name': nameController.text,
                       'phone': phoneNumberController.text,
                     };
-                    Navigator.of(context).pop(map);
+
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => PinMapLocation(
+                              toAddress: widget.toAddress,
+                              toState: widget.toState,
+                              toLatitude: widget.toLatitude,
+                              toLongitude: widget.toLongitude,
+                              pickUpContactName: nameController.text,
+                              pickUpContactNumber: phoneNumberController.text,
+                            )));
+                    //  Navigator.of(context).pop(map);
                   }
                 },
                 minWidth: deviceWidth(context) * 0.8,
@@ -1079,10 +1106,10 @@ class _ReverseGeoCodingTextFormFieldState
   Widget build(BuildContext context) {
     return Container(
       height: 100,
-      width: deviceWidth(context) * 0.9,
+      width: deviceWidth(context) * 0.95,
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(width: 1, color: Colors.amber),
+          borderRadius: BorderRadius.circular(30),
+          // border: Border.all(width: 1, color: Colors.amber),
           color: Colors.blue),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1139,7 +1166,7 @@ class _ReverseGeoCodingTextFormFieldState
                         widget.toAddress.text,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 3,
-                        style: CommonStyles.whiteText12BoldW500(),
+                        style: CommonStyles.whiteText16BoldW500(),
                       ),
                     ),
                   ],
@@ -1151,31 +1178,154 @@ class _ReverseGeoCodingTextFormFieldState
   }
 }
 
-/*class ChangeMapsStateProvider with ChangeNotifier {
-  double _latitude = 0.00;
-  double _longitude = 0.00;
+class PinMapLocation extends StatefulWidget {
+  const PinMapLocation(
+      {Key? key,
+      required this.toAddress,
+      required this.toLatitude,
+      required this.toLongitude,
+      required this.toState,
+      required this.pickUpContactName,
+      required this.pickUpContactNumber})
+      : super(key: key);
+  final String toAddress, toState, pickUpContactName, pickUpContactNumber;
+  final double toLatitude, toLongitude;
+  @override
+  State<PinMapLocation> createState() => _PinMapLocationState();
+}
 
-  void setLatitudeLongitude(double latitude, double longitude) {
-    _latitude = latitude;
-    _longitude = longitude;
-    notifyListeners();
+class _PinMapLocationState extends State<PinMapLocation> {
+  final LatLng _initialcameraposition = const LatLng(20.5937, 78.9629);
+  late BitmapDescriptor myLocation;
+  late BitmapDescriptor endLocation;
+  final Set<Marker> _markers = <Marker>{};
+
+  Map<MarkerId, Marker> markers = {};
+  Map<PolylineId, Polyline> polylines = {};
+
+  List<LatLng> latlng = [];
+  addLocation() {
+    latlng.add(LatLng(SharedPreference.latitude!, SharedPreference.longitude!));
+    latlng.add(LatLng(widget.toLatitude, widget.toLongitude));
   }
 
-  double get latitude => _latitude;
+  _addPolyLine() {
+    setState(() {
+      PolylineId id = PolylineId("poly");
+      Polyline polyline = Polyline(
+          polylineId: id,
+          visible: true,
+          width: 2,
+          color: Colors.blue,
+          points: latlng,
+          startCap: Cap.squareCap,
+          jointType: JointType.round);
 
-  double get longitude => _longitude;
-}
+      polylines[id] = polyline;
+    });
+  }
 
-class LocationReviewPage extends StatefulWidget {
-  const LocationReviewPage({Key? key}) : super(key: key);
+  Future<String> getJsonFile(String path) async {
+    return await rootBundle.loadString(path);
+  }
+
+  void _onMapCreated(GoogleMapController _cntlr) {
+    final homePageProvider =
+        Provider.of<HomePageProvider>(context, listen: false);
+    getJsonFile("assets/mapStyle.json")
+        .then((value) => _cntlr.setMapStyle(value));
+
+    getNearDriver();
+
+    homePageProvider.googleMapController = _cntlr;
+
+    homePageProvider.getDistance(widget.toLatitude, widget.toLongitude);
+  }
+
+  String vechileId = "1";
+  Future<void> getNearDriver() async {
+    var myLocationPostition =
+        LatLng(SharedPreference.latitude!, SharedPreference.longitude!);
+
+    print(
+        "-------------------${SharedPreference.latitude!} ${SharedPreference.longitude!}");
+    _markers.add(Marker(
+        markerId: const MarkerId("MyPosition"),
+        position: myLocationPostition,
+        draggable: false,
+        zIndex: 2,
+        flat: true,
+        anchor: const Offset(0.5, 0.5),
+        icon: myLocation));
+
+    var endLocationPostition = LatLng(widget.toLatitude, widget.toLongitude);
+    _markers.add(Marker(
+        markerId: const MarkerId("EndPosition"),
+        position: endLocationPostition,
+        draggable: false,
+        zIndex: 2,
+        flat: true,
+        anchor: const Offset(0.5, 0.5),
+        icon: endLocation));
+    setState(() {});
+  }
+
+  getMarkerIcon() async {
+    myLocation = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/images/srtLoc.png');
+
+    endLocation = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/images/endLoc.png');
+  }
 
   @override
-  _LocationReviewPageState createState() => _LocationReviewPageState();
-}
+  void initState() {
+    getMarkerIcon();
+    addLocation();
 
-class _LocationReviewPageState extends State<LocationReviewPage> {
+    _addPolyLine();
+
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      body: SafeArea(child: buildMap()),
+      bottomSheet: VerifyAddressBottomSheet(
+        toAddress: widget.toAddress,
+        toLatitude: widget.toLatitude,
+        toLongitude: widget.toLongitude,
+        toState: widget.toState,
+        pickUpContactName: widget.pickUpContactName,
+        pickUpContactNumber: widget.pickUpContactNumber,
+      ),
+    );
   }
-}*/
+
+  buildMap() {
+/*    print("List ----------" + latlng.first.toString());*/
+
+    final homePageProvider = Provider.of<HomePageProvider>(context);
+    return SizedBox(
+      height: deviceHeight(context) * 0.5,
+      child: GoogleMap(
+        zoomControlsEnabled: false,
+        initialCameraPosition: CameraPosition(target: _initialcameraposition),
+        mapType: MapType.normal,
+
+        polylines: Set<Polyline>.of(polylines.values),
+        //polylines: Set<Polyline>.of(homePageProvider.polylines.values),
+        onMapCreated: _onMapCreated,
+        markers: _markers,
+        // markers: Set<Marker>.of(homePageProvider.markerSet),
+        myLocationEnabled: false,
+        myLocationButtonEnabled: false,
+        mapToolbarEnabled: false,
+      ),
+    );
+  }
+}

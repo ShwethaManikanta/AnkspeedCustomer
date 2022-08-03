@@ -324,17 +324,17 @@ class _MultiStopScreenState extends State<MultiStopScreen> {
                                 builder: (context) {
                                   print(controller.text);
                                   return VerifyAddressBottomSheet(
-                                      toLatitude: widget.toLat,
-                                      toLongitude: widget.toLong,
-                                      toState: widget.toState,
-                                      pickUpContactNumber:
-                                          widget.pickUpContactNumber,
-                                      pickUpContactName:
-                                          widget.pickUpContactName,
-                                      toAddress: widget.dropLocation,
-                                   /*   stop1: controller2.text,
+                                    toLatitude: widget.toLat,
+                                    toLongitude: widget.toLong,
+                                    toState: widget.toState,
+                                    pickUpContactNumber:
+                                        widget.pickUpContactNumber,
+                                    pickUpContactName: widget.pickUpContactName,
+                                    toAddress: widget.dropLocation,
+                                    /*   stop1: controller2.text,
                                       stop2: controller3.text,
-                                      stop3: controller4.text*/);
+                                      stop3: controller4.text*/
+                                  );
                                 });
 
                             /*      confirmLocation = true;

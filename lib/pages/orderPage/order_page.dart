@@ -77,8 +77,8 @@ class _OrderPageState extends State<OrderPage> {
               0.4999999910767653,
             ),
             colors: [
-              ColorConstant.blue800Cc,
-              ColorConstant.purple800Cc,
+              ColorConstant.whiteA700,
+              ColorConstant.whiteA700,
             ],
           ),
         ),
@@ -87,8 +87,8 @@ class _OrderPageState extends State<OrderPage> {
             Padding(
               padding: const EdgeInsets.only(top: 15.0, bottom: 15),
               child: Text(
-                'All Orders',
-                style: CommonStyles.whiteText16BoldW500(),
+                'Your Rides',
+                style: CommonStyles.blackS18(),
               ),
             ),
 
@@ -99,16 +99,6 @@ class _OrderPageState extends State<OrderPage> {
       ),
     );
   }
-
-  // buildOrderHistory() {
-  //   return Container(
-  //     alignment: Alignment.topLeft,
-  //     child: Padding(
-  //       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-  //       child:
-  //     ),
-  //   );
-  // }
 
   buildOrderlist() {
     final orderHistoryAPIProvider =
@@ -155,14 +145,6 @@ class _OrderPageState extends State<OrderPage> {
               shrinkWrap: true,
               scrollDirection: Axis.vertical,
               itemBuilder: (BuildContext context, int index) {
-                // list.add(Model(
-                //     orderHistoryAPIProvider.orderHistoryResponse!
-                //         .orderHistory![index].tripDetails!.fromAddress!,
-                //     Colors.green));
-                // list.add(Model(
-                //     orderHistoryAPIProvider.orderHistoryResponse!
-                //         .orderHistory![index].tripDetails!.toAddress!,
-                //     Colors.red));
                 return OrderPageListView(index: index);
               }),
         ),

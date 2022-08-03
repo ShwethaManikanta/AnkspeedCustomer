@@ -41,11 +41,17 @@ dependencies:
   flutter_dash: ^0.0.1
   flutter_form_builder: ^7.4.0
   share_plus: ^4.0.10
+  geocoder: ^0.2.1
+
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   animated_text_kit: ^4.2.1
+  carousel_slider: ^4.0.0
+
+
 
   # Firebase required packages
   firebase_auth: ^3.3.4

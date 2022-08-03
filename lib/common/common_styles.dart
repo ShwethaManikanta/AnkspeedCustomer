@@ -167,6 +167,12 @@ class CommonStyles {
             fontWeight: FontWeight.w500, fontSize: 11, color: Colors.black));
   }
 
+  static black12reg() {
+    return GoogleFonts.montserrat(
+        textStyle: const TextStyle(
+            fontWeight: FontWeight.w500, fontSize: 15, color: Colors.black));
+  }
+
   static black1154() {
     return GoogleFonts.montserrat(
         textStyle: const TextStyle(
@@ -210,7 +216,7 @@ class CommonStyles {
         textStyle: const TextStyle(
       letterSpacing: 1.2,
       fontWeight: FontWeight.bold,
-      fontSize: 15,
+      fontSize: 16,
     ));
   }
 
@@ -238,7 +244,7 @@ class CommonStyles {
   static red9() {
     return GoogleFonts.montserrat(
         textStyle: const TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 9, color: Colors.red));
+            fontWeight: FontWeight.bold, fontSize: 10, color: Colors.red));
   }
 
   static green9() {

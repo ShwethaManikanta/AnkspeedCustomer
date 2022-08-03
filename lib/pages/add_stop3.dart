@@ -11,18 +11,34 @@ import 'package:new_ank_customer/Services/location_services.dart/loaction_shared
 import 'package:new_ank_customer/common/color_const.dart';
 import 'package:new_ank_customer/common/common_styles.dart';
 import 'package:new_ank_customer/common/utils.dart';
-import 'package:new_ank_customer/pages/bookPage/book_vehicle.dart';
+import 'package:new_ank_customer/pages/pin_point_location.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
 
 class AddStop3 extends StatefulWidget {
   final String? pickupLoction, dropLocation, stop1Location, stop2Location;
+  final double? fromLat,
+      fromLong,
+      toLat,
+      toLong,
+      stop1Lat,
+      stop1Long,
+      stop2Lat,
+      stop2Long;
   const AddStop3(
       {Key? key,
       this.pickupLoction,
       this.dropLocation,
       this.stop1Location,
-      this.stop2Location})
+      this.stop2Location,
+      this.fromLat,
+      this.fromLong,
+      this.toLat,
+      this.toLong,
+      this.stop1Lat,
+      this.stop1Long,
+      this.stop2Lat,
+      this.stop2Long})
       : super(key: key);
 
   @override
@@ -72,19 +88,16 @@ class _AddStop3State extends State<AddStop3> {
             0.4999999910767653,
           ),
           colors: [
-            ColorConstant.blue800Cc,
-            ColorConstant.purple800Cc,
+            ColorConstant.whiteA700,
+            ColorConstant.whiteA700,
           ],
         ),
       ),
       child: Column(
         children: [
           buildWelcome(),
-          // placesAutoCompleteTextField(context),
           buildSearch(),
           buildListOfLocality(),
-          // buildRecentdrop(),
-          // buildRecentdropList()
         ],
       ),
     );
@@ -184,7 +197,7 @@ class _AddStop3State extends State<AddStop3> {
                 children: [
                   Text(
                     "Search your locaiton on search box",
-                    style: CommonStyles.whiteText15BoldW500(),
+                    style: CommonStyles.black13(),
                   )
                 ],
               ),
@@ -255,6 +268,18 @@ class _AddStop3State extends State<AddStop3> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     AddStop3Map(
+                                                      fromLat: widget.fromLat,
+                                                      fromLong: widget.fromLong,
+                                                      fromAddress:
+                                                          widget.pickupLoction!,
+                                                      toLat: widget.toLat,
+                                                      toLong: widget.toLong,
+                                                      stop1Lat: widget.stop1Lat,
+                                                      stop1Long:
+                                                          widget.stop1Long,
+                                                      stop2Lat: widget.stop2Lat,
+                                                      stop2Long:
+                                                          widget.stop2Long,
                                                       dropAddress: widget
                                                           .dropLocation
                                                           .toString(),
@@ -297,8 +322,8 @@ class _AddStop3State extends State<AddStop3> {
                                               Text(
                                                 predictions[index].description!,
                                                 maxLines: 2,
-                                                style: CommonStyles
-                                                    .whiteText16BoldW500(),
+                                                style:
+                                                    CommonStyles.black57S17(),
                                               ),
                                               Utils.getSizedBox(
                                                 height: 5,
@@ -331,13 +356,32 @@ class AddStop3Map extends StatefulWidget {
     Key? key,
     this.latitude,
     this.longitude,
+    this.fromLat,
+    this.fromLong,
     this.initialScreen = false,
+    required this.fromAddress,
     required this.dropAddress,
     required this.stp1Address,
     required this.stop2Address,
+    required this.toLat,
+    required this.toLong,
+    required this.stop1Lat,
+    required this.stop1Long,
+    required this.stop2Lat,
+    required this.stop2Long,
   }) : super(key: key);
-  final double? latitude, longitude;
+  final double? latitude,
+      longitude,
+      fromLat,
+      fromLong,
+      toLat,
+      toLong,
+      stop1Lat,
+      stop1Long,
+      stop2Lat,
+      stop2Long;
   final bool initialScreen;
+  final String fromAddress;
   final String dropAddress;
   final String stp1Address;
   final String stop2Address;
@@ -489,7 +533,24 @@ class _AddStop3MapState extends State<AddStop3Map> {
                                 topLeft: Radius.circular(12),
                                 topRight: Radius.circular(12))),
                         context: context,
-                        builder: (context) => AddStop3ShowDetails());
+                        builder: (context) => AddStop3ShowDetails(
+                              fromAddress: widget.fromAddress,
+                              toAddress: widget.dropAddress,
+                              fromLat: widget.fromLat!,
+                              fromLong: widget.fromLong!,
+                              toLatitude: widget.toLat!,
+                              toLongitude: widget.toLong!,
+                              stop1Address: widget.stp1Address,
+                              stop1Lat: widget.stop1Lat!,
+                              stop1Long: widget.stop1Long!,
+                              stop2Address: widget.stop2Address,
+                              stop2Lat: widget.stop2Lat!,
+                              stop2Long: widget.stop2Long!,
+                              stop3Address: stop3Address.text,
+                              stop3Lat: latLngCamera.latitude,
+                              stop3Long: latLngCamera.longitude,
+                              toState: stop3area.text,
+                            ));
 
                     if (result['name'] == "" ||
                         result['name'] == null ||
@@ -503,7 +564,7 @@ class _AddStop3MapState extends State<AddStop3Map> {
                       selectedLongLat
                           .setSelectedLongitude(latLngCamera.longitude);
 
-                      showModalBottomSheet(
+                      /*showModalBottomSheet(
                           context: context,
                           shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.only(
@@ -511,17 +572,23 @@ class _AddStop3MapState extends State<AddStop3Map> {
                                   topRight: Radius.circular(12))),
                           builder: (context) {
                             return AddStop3VerifyAddressBottomSheet(
+                              toLat: widget.toLat!,
+                              toLong: widget.toLong!,
+                              stop1Lat: widget.stop1Lat!,
+                              stop1Long: widget.stop1Long!,
+                              stop2Lat: widget.stop2Lat!,
+                              stop2Long: widget.stop2Long!,
                               stop3Address: stop3Address.text,
                               stop2Address: widget.stop2Address,
                               dropAddres: widget.dropAddress,
                               stop1Address: widget.stp1Address,
-                              toLatitude: latLngCamera.latitude,
+                              stop3Latitude: latLngCamera.latitude,
                               toState: stop3area.text,
-                              toLongitude: latLngCamera.longitude,
+                              stop3Longitude: latLngCamera.longitude,
                               pickUpContactName: result['name'],
                               pickUpContactNumber: result['phone'],
                             );
-                          });
+                          });*/
                     }
                   },
         tooltip: 'Press to Select Location',
@@ -529,276 +596,48 @@ class _AddStop3MapState extends State<AddStop3Map> {
           "Select Location",
           style: CommonStyles.whiteText15BoldW500(),
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       ),
     );
   }
-}
-
-class AddStop3VerifyAddressBottomSheet extends StatefulWidget {
-  AddStop3VerifyAddressBottomSheet(
-      {Key? key,
-      required this.stop1Address,
-      required this.stop2Address,
-      required this.stop3Address,
-      required this.dropAddres,
-      required this.toLatitude,
-      required this.toLongitude,
-      required this.toState,
-      required this.pickUpContactName,
-      required this.pickUpContactNumber})
-      : super(key: key);
-  final String dropAddres,
-      stop1Address,
-      stop2Address,
-      stop3Address,
-      toState,
-      pickUpContactName,
-      pickUpContactNumber;
-  final double toLatitude, toLongitude;
-
-  @override
-  _AddStop3VerifyAddressBottomSheetState createState() =>
-      _AddStop3VerifyAddressBottomSheetState();
-}
-
-class _AddStop3VerifyAddressBottomSheetState
-    extends State<AddStop3VerifyAddressBottomSheet> {
-  List<Model> list = [];
-
-  @override
-  void initState() {
-    super.initState();
-    addLocationMethod();
-    //   initialize();
-  }
-
-/*  initialize() {
-    list.clear();
-    list.add(Model(SharedPreference.currentAddress!, Colors.green));
-    list.add(Model(widget.stop1Address, Colors.red));
-  }*/
-
-  List<String> addLocationList = [];
-
-  addLocationMethod() {
-    addLocationList.add(SharedPreference.currentAddress!);
-    addLocationList.add(widget.dropAddres);
-    addLocationList.add(widget.stop1Address);
-    addLocationList.add(widget.stop2Address);
-    addLocationList.add(widget.stop3Address);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Text(
-              "Review Location",
-              style: CommonStyles.blue18900(),
-            ),
-          ),
-          SizedBox(
-            height: 8,
-          ),
-          Expanded(
-            child: ReorderableListView(
-                children: /*List.generate(addedLocations.length, (index) {
-                  return Container(
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                    child: Card(
-                      child: Row(
-                        children: [
-                          Expanded(
-                              flex: 2, child: Icon(Icons.location_history)),
-                          Expanded(
-                            flex: 5,
-                            child: Text(
-                              addedLocations[index],
-                              style: CommonStyles.blue14900(),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(index.toString(),
-                                style: CommonStyles.blue14900()),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),*/
-
-                    addLocationList
-                        .map((task) => Container(
-                              key: ValueKey(task),
-                              /* decoration: BoxDecoration(
-                                  border: Border.all(
-                                      width: 1, color: Colors.green)),*/
-                              child: Card(
-                                elevation: 10,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.all(8),
-                                  leading: const Icon(Icons.location_history),
-                                  title: Text(
-                                    task,
-                                    style: CommonStyles.blue14900(),
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  //   trailing: Text(addedLocations.),
-                                ),
-                              ),
-                            ))
-                        .toList(),
-                // The reorder function
-                onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    if (newIndex > oldIndex) {
-                      newIndex -= 1;
-                    }
-                    final element = addLocationList.removeAt(oldIndex);
-                    addLocationList.insert(newIndex, element);
-                  });
-                }),
-          ),
-          /* Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15.0),
-            child: ListView.builder(
-                itemCount: list.length,
-                shrinkWrap: true,
-                itemBuilder: (con, ind) {
-                  return ind != 0
-                      ? Column(mainAxisSize: MainAxisSize.min, children: [
-                          Row(children: [
-                            Column(
-                              children: List.generate(
-                                4,
-                                (ii) => Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 10, right: 10, top: 5, bottom: 5),
-                                    child: Container(
-                                      height: 3,
-                                      width: 2,
-                                      color: Colors.grey,
-                                    )),
-                              ),
-                            ),
-                          ]),
-                          InkWell(
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              Navigator.of(context).pop();
-                            },
-                            child: Row(children: [
-                              Icon(Icons.location_on, color: list[ind].color),
-                              Flexible(
-                                child: Text(list[ind].address,
-                                    maxLines: 3, style: CommonStyles.red12()),
-                              )
-                            ]),
-                          )
-                        ])
-                      : InkWell(
-                          onTap: () async {
-                            final result = await Navigator.of(context)
-                                .push(MaterialPageRoute(
-                                    builder: (context) => const SearchPage(
-                                          initialLogin: true,
-                                          isPickupLocation: true,
-                                        )));
-
-                            if (result == "Hello") {
-                              initialize();
-                              setState(() {});
-                            }
-                          },
-                          child: Row(children: [
-                            Icon(Icons.location_on, color: list[ind].color),
-                            Flexible(
-                              child: Text(list[ind].address,
-                                  maxLines: 3, style: CommonStyles.green12()),
-                            )
-                          ]),
-                        );
-                }),
-          ),*/
-
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 12.0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MaterialButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    color: Colors.blue[900],
-                    height: 40,
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => AddStop3(
-                                dropLocation: widget.dropAddres,
-                                pickupLoction: SharedPreference.currentAddress,
-                                stop1Location: widget.stop1Address,
-                              )));
-                    },
-                    child: Center(
-                      child: Text(
-                        "Add Stop",
-                        style: CommonStyles.whiteText12BoldW500(),
-                      ),
-                    )),
-                MaterialButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    color: Colors.blue[900],
-                    height: 40,
-                    onPressed: () {
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => BookVehiclePage(
-                                fromAddress:
-                                    SharedPreference.currentAddress.toString(),
-                                toLatitude: widget.toLatitude,
-                                toLongitude: widget.toLongitude,
-                                toAddress: widget.stop1Address,
-                                toState: widget.toState,
-                                pickupContactName: widget.pickUpContactName,
-                                pickupContactPhone: widget.pickUpContactNumber,
-                                stop1: widget.stop1Address,
-                                stop2: widget.stop2Address,
-                                stop3: widget.stop3Address,
-                              )));
-                    },
-                    child: Center(
-                      child: Text(
-                        "Confirm Location",
-                        style: CommonStyles.whiteText12BoldW500(),
-                      ),
-                    )),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  String? fromAddress;
 }
 
 class AddStop3ShowDetails extends StatefulWidget {
-  AddStop3ShowDetails({Key? key}) : super(key: key);
+  AddStop3ShowDetails({
+    Key? key,
+    required this.fromAddress,
+    required this.toAddress,
+    required this.stop1Address,
+    required this.stop2Address,
+    required this.stop3Address,
+    required this.stop1Lat,
+    required this.fromLong,
+    required this.fromLat,
+    required this.stop1Long,
+    required this.stop2Lat,
+    required this.stop2Long,
+    required this.stop3Lat,
+    required this.stop3Long,
+    required this.toLatitude,
+    required this.toLongitude,
+    required this.toState,
+  }) : super(key: key);
+  final String fromAddress,
+      toAddress,
+      stop1Address,
+      stop2Address,
+      stop3Address,
+      toState;
+  final double fromLat,
+      fromLong,
+      toLatitude,
+      toLongitude,
+      stop1Lat,
+      stop1Long,
+      stop2Lat,
+      stop2Long,
+      stop3Lat,
+      stop3Long;
 
   @override
   _AddStop3ShowDetailsState createState() => _AddStop3ShowDetailsState();
@@ -962,7 +801,26 @@ class _AddStop3ShowDetailsState extends State<AddStop3ShowDetails> {
                       'name': nameController.text,
                       'phone': phoneNumberController.text,
                     };
-                    Navigator.of(context).pop(map);
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => AddStop3PinMapLocation(
+                            fromAddress: widget.fromAddress,
+                            toAddress: widget.toAddress,
+                            stop1Address: widget.stop1Address,
+                            stop2Address: widget.stop2Address,
+                            fromLat: widget.fromLat,
+                            fromLong: widget.fromLong,
+                            toLatitude: widget.toLatitude,
+                            toLongitude: widget.toLongitude,
+                            stop1Lat: widget.stop1Lat,
+                            stop1Long: widget.stop1Long,
+                            stop2Lat: widget.stop2Lat,
+                            stop2Long: widget.stop2Long,
+                            stop3Address: widget.stop3Address,
+                            stop3Lat: widget.stop3Lat,
+                            stop3Long: widget.stop3Long,
+                            toState: widget.toState,
+                            pickUpContactName: nameController.text,
+                            pickUpContactNumber: phoneNumberController.text)));
                   }
                 },
                 minWidth: deviceWidth(context) * 0.8,
@@ -1063,8 +921,8 @@ class _AddStop3ReverseGeoCodingTextFormFieldState
       height: 100,
       width: deviceWidth(context) * 0.9,
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(width: 1, color: Colors.amber),
+          borderRadius: BorderRadius.circular(30),
+          // border: Border.all(width: 1, color: Colors.amber),
           color: Colors.blue),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

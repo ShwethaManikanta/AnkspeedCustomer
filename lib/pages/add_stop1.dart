@@ -11,13 +11,22 @@ import 'package:new_ank_customer/common/color_const.dart';
 import 'package:new_ank_customer/common/common_styles.dart';
 import 'package:new_ank_customer/common/utils.dart';
 import 'package:new_ank_customer/pages/add_stop2.dart';
+import 'package:new_ank_customer/pages/add_stop3.dart';
 import 'package:new_ank_customer/pages/bookPage/book_vehicle.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
+import 'package:new_ank_customer/pages/common_provider.dart';
+import 'package:new_ank_customer/pages/pin_point_location.dart';
 import 'package:provider/provider.dart';
 
 class AddStop1 extends StatefulWidget {
   final String? pickupLoction, dropLocation;
-  const AddStop1({Key? key, this.pickupLoction, this.dropLocation})
+  final double toLat, toLong;
+  const AddStop1(
+      {Key? key,
+      this.pickupLoction,
+      this.dropLocation,
+      required this.toLat,
+      required this.toLong})
       : super(key: key);
 
   @override
@@ -67,8 +76,8 @@ class _AddStop1State extends State<AddStop1> {
             0.4999999910767653,
           ),
           colors: [
-            ColorConstant.blue800Cc,
-            ColorConstant.purple800Cc,
+            ColorConstant.whiteA700,
+            ColorConstant.whiteA700,
           ],
         ),
       ),
@@ -255,6 +264,8 @@ class _AddStop1State extends State<AddStop1> {
                                                           .toString(),
                                                       latitude: locaiton.lat!,
                                                       longitude: locaiton.lng!,
+                                                      toLong: widget.toLong,
+                                                      toLat: widget.toLat,
                                                     )));
                                       } else {
                                         Utils.showSnackBar(
@@ -286,8 +297,8 @@ class _AddStop1State extends State<AddStop1> {
                                               Text(
                                                 predictions[index].description!,
                                                 maxLines: 2,
-                                                style: CommonStyles
-                                                    .whiteText16BoldW500(),
+                                                style:
+                                                    CommonStyles.black57S17(),
                                               ),
                                               Utils.getSizedBox(
                                                 height: 5,
@@ -320,10 +331,12 @@ class AddStop1Map extends StatefulWidget {
       {Key? key,
       this.latitude,
       this.longitude,
+      this.toLat,
+      this.toLong,
       this.initialScreen = false,
       required this.dropAddress})
       : super(key: key);
-  final double? latitude, longitude;
+  final double? latitude, longitude, toLat, toLong;
   final bool initialScreen;
   final String dropAddress;
 
@@ -474,7 +487,15 @@ class _AddStop1MapState extends State<AddStop1Map> {
                                 topLeft: Radius.circular(12),
                                 topRight: Radius.circular(12))),
                         context: context,
-                        builder: (context) => AddStop1ShowDetails());
+                        builder: (context) => AddStop1ShowDetails(
+                              toAddress: widget.dropAddress,
+                              toLatitude: widget.toLat!,
+                              toLongitude: widget.toLong!,
+                              toState: stop1area.text,
+                              stop1Address: stop1Address.text,
+                              stop1Lat: latLngCamera.latitude,
+                              stop1Long: latLngCamera.longitude,
+                            ));
 
                     if (result['name'] == "" ||
                         result['name'] == null ||
@@ -488,7 +509,7 @@ class _AddStop1MapState extends State<AddStop1Map> {
                       selectedLongLat
                           .setSelectedLongitude(latLngCamera.longitude);
 
-                      showModalBottomSheet(
+                      /* showModalBottomSheet(
                           context: context,
                           shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.only(
@@ -497,14 +518,16 @@ class _AddStop1MapState extends State<AddStop1Map> {
                           builder: (context) {
                             return AddStop1VerifyAddressBottomSheet(
                               dropAddres: widget.dropAddress,
+                              toLat: widget.toLat!,
+                              toLong: widget.toLong!,
                               stop1Address: stop1Address.text,
-                              toLatitude: latLngCamera.latitude,
+                              stop1Latitude: latLngCamera.latitude,
                               toState: stop1area.text,
-                              toLongitude: latLngCamera.longitude,
+                              stop1Longitude: latLngCamera.longitude,
                               pickUpContactName: result['name'],
                               pickUpContactNumber: result['phone'],
                             );
-                          });
+                          });*/
                     }
                   },
         tooltip: 'Press to Select Location',
@@ -512,263 +535,26 @@ class _AddStop1MapState extends State<AddStop1Map> {
           "Select Location",
           style: CommonStyles.whiteText15BoldW500(),
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       ),
     );
   }
-}
-
-class AddStop1VerifyAddressBottomSheet extends StatefulWidget {
-  AddStop1VerifyAddressBottomSheet(
-      {Key? key,
-      required this.stop1Address,
-      required this.dropAddres,
-      required this.toLatitude,
-      required this.toLongitude,
-      required this.toState,
-      required this.pickUpContactName,
-      required this.pickUpContactNumber})
-      : super(key: key);
-  final String dropAddres,
-      stop1Address,
-      toState,
-      pickUpContactName,
-      pickUpContactNumber;
-  final double toLatitude, toLongitude;
-
-  @override
-  _AddStop1VerifyAddressBottomSheetState createState() =>
-      _AddStop1VerifyAddressBottomSheetState();
-}
-
-class _AddStop1VerifyAddressBottomSheetState
-    extends State<AddStop1VerifyAddressBottomSheet> {
-  List<Model> list = [];
-
-  @override
-  void initState() {
-    super.initState();
-    addLocationMethod();
-    //   initialize();
-  }
-
-/*  initialize() {
-    list.clear();
-    list.add(Model(SharedPreference.currentAddress!, Colors.green));
-    list.add(Model(widget.stop1Address, Colors.red));
-  }*/
-
-  List<String> addLocationList = [];
-
-  addLocationMethod() {
-    addLocationList.add(SharedPreference.currentAddress!);
-    addLocationList.add(widget.dropAddres);
-    addLocationList.add(widget.stop1Address);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(15),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Text(
-              "Review Location",
-              style: CommonStyles.blue18900(),
-            ),
-          ),
-          Expanded(
-            child: ReorderableListView(
-                children: /*List.generate(addedLocations.length, (index) {
-                  return Container(
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                    child: Card(
-                      child: Row(
-                        children: [
-                          Expanded(
-                              flex: 2, child: Icon(Icons.location_history)),
-                          Expanded(
-                            flex: 5,
-                            child: Text(
-                              addedLocations[index],
-                              style: CommonStyles.blue14900(),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(index.toString(),
-                                style: CommonStyles.blue14900()),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),*/
-
-                    addLocationList
-                        .map((task) => Container(
-                              key: ValueKey(task),
-                              child: Card(
-                                elevation: 10,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.all(8),
-                                  leading: const Icon(Icons.location_history),
-                                  title: Text(
-                                    task,
-                                    style: CommonStyles.blue14900(),
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  //   trailing: Text(addedLocations.),
-                                ),
-                              ),
-                            ))
-                        .toList(),
-                // The reorder function
-                onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    if (newIndex > oldIndex) {
-                      newIndex -= 1;
-                    }
-                    final element = addLocationList.removeAt(oldIndex);
-                    addLocationList.insert(newIndex, element);
-                  });
-                }),
-          ),
-          /* Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15.0),
-            child: ListView.builder(
-                itemCount: list.length,
-                shrinkWrap: true,
-                itemBuilder: (con, ind) {
-                  return ind != 0
-                      ? Column(mainAxisSize: MainAxisSize.min, children: [
-                          Row(children: [
-                            Column(
-                              children: List.generate(
-                                4,
-                                (ii) => Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 10, right: 10, top: 5, bottom: 5),
-                                    child: Container(
-                                      height: 3,
-                                      width: 2,
-                                      color: Colors.grey,
-                                    )),
-                              ),
-                            ),
-                          ]),
-                          InkWell(
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              Navigator.of(context).pop();
-                            },
-                            child: Row(children: [
-                              Icon(Icons.location_on, color: list[ind].color),
-                              Flexible(
-                                child: Text(list[ind].address,
-                                    maxLines: 3, style: CommonStyles.red12()),
-                              )
-                            ]),
-                          )
-                        ])
-                      : InkWell(
-                          onTap: () async {
-                            final result = await Navigator.of(context)
-                                .push(MaterialPageRoute(
-                                    builder: (context) => const SearchPage(
-                                          initialLogin: true,
-                                          isPickupLocation: true,
-                                        )));
-
-                            if (result == "Hello") {
-                              initialize();
-                              setState(() {});
-                            }
-                          },
-                          child: Row(children: [
-                            Icon(Icons.location_on, color: list[ind].color),
-                            Flexible(
-                              child: Text(list[ind].address,
-                                  maxLines: 3, style: CommonStyles.green12()),
-                            )
-                          ]),
-                        );
-                }),
-          ),*/
-
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 12.0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MaterialButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    color: Colors.blue[900],
-                    height: 40,
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => AddStop2(
-                                dropLocation: widget.dropAddres,
-                                pickupLoction: SharedPreference.currentAddress,
-                                stop1Location: widget.stop1Address,
-                              )));
-                    },
-                    child: Center(
-                      child: Text(
-                        "Add Stop",
-                        style: CommonStyles.whiteText12BoldW500(),
-                      ),
-                    )),
-                MaterialButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    color: Colors.blue[900],
-                    height: 40,
-                    onPressed: () {
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => BookVehiclePage(
-                                fromAddress: list[0].address,
-                                toLatitude: widget.toLatitude,
-                                toLongitude: widget.toLongitude,
-                                toAddress: widget.stop1Address,
-                                toState: widget.toState,
-                                pickupContactName: widget.pickUpContactName,
-                                pickupContactPhone: widget.pickUpContactNumber,
-                                stop1: widget.stop1Address,
-                                stop2: "",
-                                stop3: "",
-                              )));
-                    },
-                    child: Center(
-                      child: Text(
-                        "Confirm Location",
-                        style: CommonStyles.whiteText12BoldW500(),
-                      ),
-                    )),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  String? fromAddress;
 }
 
 class AddStop1ShowDetails extends StatefulWidget {
-  AddStop1ShowDetails({Key? key}) : super(key: key);
+  AddStop1ShowDetails({
+    Key? key,
+    required this.toAddress,
+    required this.stop1Address,
+    required this.stop1Lat,
+    required this.stop1Long,
+    required this.toLatitude,
+    required this.toLongitude,
+    required this.toState,
+  }) : super(key: key);
+
+  final String toAddress, stop1Address, toState;
+  final double toLatitude, toLongitude, stop1Lat, stop1Long;
 
   @override
   _AddStop1ShowDetailsState createState() => _AddStop1ShowDetailsState();
@@ -932,7 +718,20 @@ class _AddStop1ShowDetailsState extends State<AddStop1ShowDetails> {
                       'name': nameController.text,
                       'phone': phoneNumberController.text,
                     };
-                    Navigator.of(context).pop(map);
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => AddStop3PinMapLocation(
+                            fromAddress: SharedPreference.currentAddress!,
+                            fromLat: SharedPreference.latitude!,
+                            fromLong: SharedPreference.longitude!,
+                            stop1Lat: widget.stop1Lat,
+                            stop1Long: widget.stop1Long,
+                            stop1Address: widget.stop1Address,
+                            toAddress: widget.toAddress,
+                            toLatitude: widget.toLatitude,
+                            toLongitude: widget.toLongitude,
+                            toState: widget.toState,
+                            pickUpContactName: nameController.text,
+                            pickUpContactNumber: phoneNumberController.text)));
                   }
                 },
                 minWidth: deviceWidth(context) * 0.8,
@@ -1033,9 +832,7 @@ class _AddStop1ReverseGeoCodingTextFormFieldState
       height: 100,
       width: deviceWidth(context) * 0.9,
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(width: 1, color: Colors.amber),
-          color: Colors.blue),
+          borderRadius: BorderRadius.circular(30), color: Colors.blue),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1099,6 +896,307 @@ class _AddStop1ReverseGeoCodingTextFormFieldState
                 );
               }),
         ],
+      ),
+    );
+  }
+}
+
+class AddStop1PinMapLocation extends StatefulWidget {
+  const AddStop1PinMapLocation(
+      {Key? key,
+      required this.toAddress,
+      required this.stop1Address,
+      required this.toLatitude,
+      required this.toLongitude,
+      required this.stop1Lat,
+      required this.stop1Long,
+      required this.toState,
+      required this.pickUpContactName,
+      required this.pickUpContactNumber})
+      : super(key: key);
+  final String toAddress,
+      stop1Address,
+      toState,
+      pickUpContactName,
+      pickUpContactNumber;
+  final double toLatitude, toLongitude, stop1Lat, stop1Long;
+  @override
+  State<AddStop1PinMapLocation> createState() => _AddStop1PinMapLocationState();
+}
+
+class _AddStop1PinMapLocationState extends State<AddStop1PinMapLocation> {
+  final LatLng _initialcameraposition = const LatLng(20.5937, 78.9629);
+  late BitmapDescriptor myLocation;
+  late BitmapDescriptor endLocation;
+  late BitmapDescriptor stopLocation;
+  final Set<Marker> _markers = <Marker>{};
+
+  Map<MarkerId, Marker> markers = {};
+  Map<PolylineId, Polyline> polylines = {};
+
+  List<LatLng> latlng = [];
+
+  addLocation() {
+    latlng.add(LatLng(SharedPreference.latitude!, SharedPreference.longitude!));
+    latlng.add(LatLng(widget.toLatitude, widget.toLongitude));
+    latlng.add(LatLng(widget.stop1Lat, widget.stop1Long));
+  }
+
+  List addAddressList = <String>[];
+
+  addingAddressList() {
+    addAddressList.add("${SharedPreference.currentAddress!}");
+    addAddressList.add("${widget.toAddress}");
+    addAddressList.add(widget.stop1Address);
+  }
+
+  List<dynamic> addAddressCoordinates = [];
+
+  _addPolyLine() {
+    setState(() {
+      PolylineId id = PolylineId("poly");
+      Polyline polyline = Polyline(
+          polylineId: id,
+          visible: true,
+          width: 2,
+          color: Colors.blue,
+          points: latlng,
+          startCap: Cap.squareCap,
+          jointType: JointType.round);
+
+      polylines[id] = polyline;
+    });
+  }
+
+  Future<String> getJsonFile(String path) async {
+    return await rootBundle.loadString(path);
+  }
+
+  void _onMapCreated(GoogleMapController _cntlr) {
+    final homePageProvider =
+        Provider.of<HomePageProvider>(context, listen: false);
+    getJsonFile("assets/mapStyle.json")
+        .then((value) => _cntlr.setMapStyle(value));
+    setState(() {
+      getNearDriver();
+    });
+
+    homePageProvider.googleMapController = _cntlr;
+
+    homePageProvider.getDistance(widget.toLatitude, widget.toLongitude);
+  }
+
+  Future<void> getNearDriver() async {
+    var myLocationPostition =
+        LatLng(latlng.first.latitude, latlng.first.longitude);
+
+    print(
+        "-------------------${SharedPreference.latitude!} ${SharedPreference.longitude!}");
+    _markers.add(Marker(
+        markerId: const MarkerId("MyPosition"),
+        position: myLocationPostition,
+        draggable: false,
+        zIndex: 2,
+        flat: true,
+        anchor: const Offset(0.5, 0.5),
+        icon: myLocation));
+
+    var endLocationPostition =
+        LatLng(latlng.last.latitude, latlng.last.longitude);
+    _markers.add(Marker(
+        markerId: const MarkerId("EndPosition"),
+        position: endLocationPostition,
+        draggable: false,
+        zIndex: 2,
+        flat: true,
+        anchor: const Offset(0.5, 0.5),
+        icon: endLocation));
+
+    var stopLocationPostition = LatLng(latlng[1].latitude, latlng[1].longitude);
+    _markers.add(Marker(
+        markerId: const MarkerId("stopPosition"),
+        position: stopLocationPostition,
+        draggable: false,
+        zIndex: 2,
+        flat: true,
+        anchor: const Offset(0.5, 0.5),
+        icon: stopLocation));
+    setState(() {});
+  }
+
+  getMarkerIcon() async {
+    myLocation = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/images/srtLoc.png');
+
+    endLocation = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/images/endLoc.png');
+    stopLocation = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/images/stopLoc.png');
+  }
+
+  @override
+  void initState() {
+    getMarkerIcon();
+    addLocation();
+    addingAddressList();
+    //  toSeprateAddress();
+    _addPolyLine();
+
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(child: buildMap()),
+      bottomSheet: Container(
+          height: deviceHeight(context) * 0.5,
+          child: Container(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    "Review Location",
+                    style: CommonStyles.blue18900(),
+                  ),
+                ),
+                Expanded(
+                  child: ReorderableListView.builder(
+                    itemCount: latlng.length,
+                    itemBuilder: (context, index) {
+                      final productName = latlng[index];
+                      return Container(
+                        key: ValueKey(productName),
+                        child: Card(
+                          elevation: 10,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          child: ListTile(
+                              contentPadding: const EdgeInsets.all(8),
+                              leading: const Icon(Icons.location_history),
+                              title: Text(addAddressList[index],
+                                  style: CommonStyles.blue14900(),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis)
+                              //   trailing: Text(addedLocations.),
+                              ),
+                        ),
+                      );
+                    },
+                    onReorder: (oldIndex, newIndex) {
+                      setState(() {
+                        if (newIndex > oldIndex) {
+                          newIndex = newIndex - 1;
+                        }
+                        final latLngOrder = latlng.removeAt(oldIndex);
+                        latlng.insert(newIndex, latLngOrder);
+                        final element = addAddressList.removeAt(oldIndex);
+                        addAddressList.insert(newIndex, element);
+                        getNearDriver();
+                        getMarkerIcon();
+                        _addPolyLine();
+                      });
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 12.0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      MaterialButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          color: Colors.blue[900],
+                          height: 40,
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => AddStop2(
+                                      fromLat: latlng.first.latitude,
+                                      fromLong: latlng.first.longitude,
+                                      dropLocation: addAddressList.last,
+                                      pickupLoction: addAddressList.first,
+                                      stop1Location: addAddressList[1],
+                                      toLong: latlng.last.longitude,
+                                      toLat: latlng.last.latitude,
+                                      stop1Lat: latlng[1].latitude,
+                                      stop1Long: latlng[1].longitude,
+                                    )));
+                          },
+                          child: Center(
+                            child: Text(
+                              "Add Stop",
+                              style: CommonStyles.whiteText12BoldW500(),
+                            ),
+                          )),
+                      MaterialButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          color: Colors.blue[900],
+                          height: 40,
+                          onPressed: () {
+                            setState(() {
+                              Navigator.of(context)
+                                  .pushReplacement(MaterialPageRoute(
+                                      builder: (context) => BookVehiclePage(
+                                            fromLat: latlng.first.latitude,
+                                            fromLong: latlng.first.longitude,
+                                            fromAddress: SharedPreference
+                                                .currentAddress!,
+                                            toLatitude: latlng.last.latitude,
+                                            toLongitude: latlng.last.longitude,
+                                            toAddress: widget.toAddress,
+                                            toState: widget.toState,
+                                            pickupContactName:
+                                                widget.pickUpContactName,
+                                            pickupContactPhone:
+                                                widget.pickUpContactNumber,
+                                            stop1: widget.stop1Address,
+                                            stop1lat: latlng[1].latitude,
+                                            stop1long: latlng[1].longitude,
+                                          )));
+                            });
+                          },
+                          child: Center(
+                            child: Text(
+                              "Confirm Location",
+                              style: CommonStyles.whiteText12BoldW500(),
+                            ),
+                          )),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          )),
+    );
+  }
+
+  buildMap() {
+    return SizedBox(
+      height: deviceHeight(context) * 0.5,
+      child: GoogleMap(
+        zoomControlsEnabled: false,
+        initialCameraPosition: CameraPosition(target: _initialcameraposition),
+        mapType: MapType.normal,
+
+        polylines: Set<Polyline>.of(polylines.values),
+        //polylines: Set<Polyline>.of(homePageProvider.polylines.values),
+        onMapCreated: _onMapCreated,
+        markers: _markers,
+        // markers: Set<Marker>.of(homePageProvider.markerSet),
+        myLocationEnabled: false,
+        myLocationButtonEnabled: false,
+        mapToolbarEnabled: false,
       ),
     );
   }

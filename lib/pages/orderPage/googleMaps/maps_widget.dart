@@ -42,7 +42,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   final Set<Polyline> _polylines = <Polyline>{};
   List<LatLng> polylineCoordinates = [];
   late PolylinePoints polylinePoints;
-  String googleAPIKey = "AIzaSyCoCUX3aEbxcwud60ocZ-XcA7D4Ac-aNXE";
+  String googleAPIKey = "AIzaSyDgrOHeCPPtxJVF3GGQvkfZrXllj6Z4HTU";
 // for my custom marker pins
   late BitmapDescriptor sourceIcon;
   late BitmapDescriptor destinationIcon;

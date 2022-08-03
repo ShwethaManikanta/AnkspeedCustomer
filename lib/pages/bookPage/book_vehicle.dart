@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:new_ank_customer/Models/book_vehicle_models.dart';
@@ -21,11 +22,10 @@ import 'package:new_ank_customer/common/color_const.dart';
 import 'package:new_ank_customer/common/common_styles.dart';
 import 'package:new_ank_customer/common/utils.dart';
 import 'package:new_ank_customer/pages/common_provider.dart';
-import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:new_ank_customer/pages/fetchLocation/fetch_location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:new_ank_customer/pages/goods_type_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -45,12 +45,29 @@ class BookVehiclePage extends StatefulWidget {
     required this.pickupContactPhone,
     required this.toState,
     required this.fromAddress,
-    required this.stop1,
-    required this.stop2,
-    required this.stop3,
+    this.fromLat,
+    this.fromLong,
+    this.stop1,
+    this.stop1lat,
+    this.stop1long,
+    this.stop2Lat,
+    this.stop2Long,
+    this.stop3Lat,
+    this.stop3Long,
+    this.stop2,
+    this.stop3,
   }) : super(key: key);
-  final double toLatitude, toLongitude;
-  final String toAddress,
+  final double? fromLat,
+      fromLong,
+      toLatitude,
+      toLongitude,
+      stop1lat,
+      stop1long,
+      stop2Lat,
+      stop2Long,
+      stop3Lat,
+      stop3Long;
+  final String? toAddress,
       pickupContactName,
       pickupContactPhone,
       toState,
@@ -72,6 +89,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
   late BitmapDescriptor truckNearByVehicle;
   late BitmapDescriptor myLocation;
   late BitmapDescriptor endLocation;
+  late BitmapDescriptor stopLocation;
   final Set<Marker> _markers = <Marker>{};
 
   bool viewStop = false;
@@ -79,13 +97,31 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
   @override
   void initState() {
     getMarkerIcon();
+    addLocation();
+
+    // _addPolyLine();
+    _getPolyline();
 
     context.read<VehicleCategoriesAPIProvider>().initialize();
     context.read<VehicleCategoriesAPIProvider>().fetchData(
-        fromLat: SharedPreference.latitude!,
-        fromLong: SharedPreference.longitude!,
-        toLat: widget.toLatitude,
-        toLong: widget.toLongitude,
+        fromLat: double.parse("#" +
+            "${widget.fromLat!}" +
+            "#" +
+            "${widget.stop1lat!}" +
+            "#" +
+            "${widget.stop2Lat!}" +
+            "#" +
+            "${widget.stop3Lat!}"),
+        fromLong: double.parse("#" +
+            "${widget.fromLong!}" +
+            "#" +
+            "${widget.stop1long!}" +
+            "#" +
+            "${widget.stop2Long!}" +
+            "#" +
+            "${widget.stop3Long!}"),
+        toLat: widget.toLatitude!,
+        toLong: widget.toLongitude!,
         labourQuantity: 0);
     // getNearDriver();
     if (context.read<HomePageProvider>().markerSet.isNotEmpty) {
@@ -95,6 +131,65 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
 
     // initialize();
     super.initState();
+  }
+
+  // ployLine -----------
+
+  Map<MarkerId, Marker> markers = {};
+  Map<PolylineId, Polyline> polylines = {};
+
+  List<LatLng> latlng = [];
+  addLocation() {
+    latlng.add(LatLng(widget.fromLat!, widget.fromLong!));
+    latlng.add(LatLng(widget.toLatitude!, widget.toLongitude!));
+    if (widget.stop1lat != null)
+      latlng.add(LatLng(widget.stop1lat!, widget.stop1long!));
+    if (widget.stop2Lat != null)
+      latlng.add(LatLng(widget.stop2Lat!, widget.stop2Long!));
+    if (widget.stop3Lat != null)
+      latlng.add(LatLng(widget.stop3Lat!, widget.stop3Long!));
+  }
+
+  _addPolyLine() {
+    PolylineId id = PolylineId("poly");
+    Polyline polyline = Polyline(
+        width: 3,
+        polylineId: id,
+        color: Colors.blue,
+        points: polylineCoordinates);
+    polylines[id] = polyline;
+    setState(() {});
+  }
+
+  List<LatLng> polylineCoordinates = [];
+
+  PolylinePoints polylinePoints = PolylinePoints();
+  _getPolyline() async {
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+        "AIzaSyDgrOHeCPPtxJVF3GGQvkfZrXllj6Z4HTU",
+        PointLatLng(widget.fromLat!, widget.fromLong!),
+        PointLatLng(widget.toLatitude!, widget.toLongitude!),
+        travelMode: TravelMode.driving,
+        wayPoints: [
+          if (widget.stop1lat != null)
+            PolylineWayPoint(
+                location: "${widget.stop1lat},${widget.stop1long}",
+                stopOver: true),
+          if (widget.stop2Lat != null)
+            PolylineWayPoint(
+                location: "${widget.stop2Lat},${widget.stop2Long}",
+                stopOver: true),
+          if (widget.stop3Lat != null)
+            PolylineWayPoint(
+                location: "${widget.stop3Lat},${widget.stop3Long}",
+                stopOver: true)
+        ]);
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+    _addPolyLine();
   }
 
   getMarkerIcon() async {
@@ -109,10 +204,15 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
         const ImageConfiguration(devicePixelRatio: 2.5), 'assets/auto.png');
 
     myLocation = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(devicePixelRatio: 2.5), 'assets/loc_pin.png');
+        const ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/images/srtLoc.png');
 
     endLocation = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(devicePixelRatio: 2.5), 'assets/loc_pin.png');
+        const ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/images/endLoc.png');
+    stopLocation = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/images/stopLoc.png');
   }
 
   List<NearByVehicleList> vehicleList = [];
@@ -177,8 +277,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
     } else {
       Utils.showErrorMessage("Driver not Available in your in Location !!!");
     }
-    var myLocationPostition =
-        LatLng(SharedPreference.latitude!, SharedPreference.longitude!);
+    var myLocationPostition = LatLng(widget.fromLat!, widget.fromLong!);
 
     print(
         "-------------------${SharedPreference.latitude!} ${SharedPreference.longitude!}");
@@ -191,7 +290,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
         anchor: const Offset(0.5, 0.5),
         icon: myLocation));
 
-    var endLocationPostition = LatLng(widget.toLatitude, widget.toLongitude);
+    var endLocationPostition = LatLng(widget.toLatitude!, widget.toLongitude!);
     _markers.add(Marker(
         markerId: const MarkerId("EndPosition"),
         position: endLocationPostition,
@@ -200,6 +299,42 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
         flat: true,
         anchor: const Offset(0.5, 0.5),
         icon: endLocation));
+
+    // Stop1 Location
+
+    var stop1LocationPostition = LatLng(widget.stop1lat!, widget.stop1long!);
+    if (widget.stop1lat != null)
+      _markers.add(Marker(
+          markerId: const MarkerId("Stop1"),
+          position: stop1LocationPostition,
+          draggable: false,
+          zIndex: 2,
+          flat: true,
+          anchor: const Offset(0.5, 0.5),
+          icon: stopLocation)); // Stop1 Location
+
+    var stop2LocationPostition = LatLng(widget.stop2Lat!, widget.stop2Long!);
+    if (widget.stop2Lat != null)
+      _markers.add(Marker(
+          markerId: const MarkerId("Stop2"),
+          position: stop2LocationPostition,
+          draggable: false,
+          zIndex: 2,
+          flat: true,
+          anchor: const Offset(0.5, 0.5),
+          icon: stopLocation)); // Stop1 Location
+
+    var stop3LocationPostition = LatLng(widget.stop3Lat!, widget.stop3Long!);
+    if (widget.stop3Lat != null)
+      _markers.add(Marker(
+          markerId: const MarkerId("Stop3"),
+          position: stop3LocationPostition,
+          draggable: false,
+          zIndex: 2,
+          flat: true,
+          anchor: const Offset(0.5, 0.5),
+          icon: stopLocation));
+
     setState(() {});
   }
 
@@ -217,14 +352,12 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
 
     homePageProvider.googleMapController = _cntlr;
 
-    homePageProvider.getDistance(widget.toLatitude, widget.toLongitude);
+    homePageProvider.getDistance(widget.toLatitude!, widget.toLongitude!);
   }
 
   @override
   Widget build(BuildContext context) {
-    final vechileCategoryAPI =
-        Provider.of<VehicleCategoriesAPIProvider>(context);
-
+    print("List -------" + latlng.length.toString());
     return Scaffold(
       backgroundColor: Colors.white,
       body: buildBody(),
@@ -243,7 +376,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
       children: [
         buildMap(),
         DraggableScrollableSheet(
-            minChildSize: 0.75,
+            minChildSize: 0.50,
             initialChildSize: 0.75,
             maxChildSize: 0.75,
             builder: (context, draggableController) {
@@ -290,16 +423,21 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
   }
 
   buildMap() {
+/*    print("List ----------" + latlng.first.toString());*/
+
     final homePageProvider = Provider.of<HomePageProvider>(context);
     return SizedBox(
       height: deviceHeight(context) * 0.5,
       child: GoogleMap(
         zoomControlsEnabled: false,
         initialCameraPosition: CameraPosition(target: _initialcameraposition),
-        mapType: MapType.normal,
-        polylines: Set<Polyline>.of(homePageProvider.polylines.values),
+        mapType: MapType.terrain,
+
+        // polylines: Set<Polyline>.of(homePageProvider.polylines.values),
         onMapCreated: _onMapCreated,
         markers: _markers,
+        polylines: Set<Polyline>.of(polylines.values),
+
         // markers: Set<Marker>.of(homePageProvider.markerSet),
         myLocationEnabled: false,
         myLocationButtonEnabled: false,
@@ -411,7 +549,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                                       Expanded(
                                         flex: 4,
                                         child: Text(
-                                          widget.fromAddress,
+                                          widget.fromAddress!,
                                           maxLines: 3,
                                           style: CommonStyles.green12(),
                                         ),
@@ -440,7 +578,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                                       Expanded(
                                         flex: 4,
                                         child: Text(
-                                          widget.toAddress,
+                                          widget.toAddress!,
                                           maxLines: 3,
                                           style: CommonStyles.red12(),
                                         ),
@@ -470,6 +608,9 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                                             ),
                                             onPressed: () {
                                               viewStop = !viewStop;
+
+                                              print("View Stop -----------" +
+                                                  viewStop.toString());
                                             },
                                           ),
                                         ],
@@ -483,7 +624,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                                             Icon(
                                               Icons.add_location_alt_outlined,
                                               size: 15,
-                                              color: Colors.blue,
+                                              color: Colors.amber,
                                             ),
                                             SizedBox(
                                               width: 10,
@@ -491,9 +632,9 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                                             Expanded(
                                               flex: 4,
                                               child: Text(
-                                                widget.stop1,
+                                                widget.stop1!,
                                                 maxLines: 3,
-                                                style: CommonStyles.blue12(),
+                                                style: CommonStyles.black12(),
                                               ),
                                             )
                                           ],
@@ -512,7 +653,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                                             Icon(
                                               Icons.add_location_alt_outlined,
                                               size: 15,
-                                              color: Colors.blue,
+                                              color: Colors.amber,
                                             ),
                                             SizedBox(
                                               width: 10,
@@ -520,9 +661,9 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                                             Expanded(
                                               flex: 4,
                                               child: Text(
-                                                widget.stop2,
+                                                widget.stop2!,
                                                 maxLines: 3,
-                                                style: CommonStyles.blue12(),
+                                                style: CommonStyles.black12(),
                                               ),
                                             )
                                           ],
@@ -541,7 +682,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                                             Icon(
                                               Icons.add_location_alt_outlined,
                                               size: 15,
-                                              color: Colors.blue,
+                                              color: Colors.amber,
                                             ),
                                             SizedBox(
                                               width: 10,
@@ -549,9 +690,9 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                                             Expanded(
                                               flex: 4,
                                               child: Text(
-                                                widget.stop3,
+                                                widget.stop3!,
                                                 maxLines: 3,
-                                                style: CommonStyles.blue12(),
+                                                style: CommonStyles.black12(),
                                               ),
                                             )
                                           ],
@@ -614,11 +755,11 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                         Row(
                           children: [
                             Text(
-                              widget.pickupContactName + " : ",
+                              widget.pickupContactName! + " : ",
                               style: CommonStyles.blue13(),
                             ),
                             Text(
-                              widget.pickupContactPhone,
+                              widget.pickupContactPhone!,
                               style: CommonStyles.blue13(),
                             ),
                           ],
@@ -929,14 +1070,14 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
               isScrollControlled: true,
               context: context,
               builder: (context) {
-                return const SelectGoodTyepBottomSheet();
+                return const GoodsTypeScreen();
               });
           if (result != null) {
             setState(() {
               _showBookingPage = true;
               selectedGoodTypeName = result['goodtype'];
-              selectedGoodTypeUnit = result['unit'];
-              selectedUnitType = result['properUnit'];
+              /*selectedGoodTypeUnit = result['unit'];
+              selectedUnitType = result['properUnit'];*/
             });
           }
         },
@@ -1002,11 +1143,11 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                       context: context,
                       builder: (context) {
                         return Verify30PercentPayment(
-                          toLatitude: widget.toLatitude,
-                          toLongitude: widget.toLongitude,
-                          pickupContactName: widget.pickupContactName,
-                          pickupContactPhone: widget.pickupContactPhone,
-                          toAddress: widget.toAddress,
+                          toLatitude: widget.toLatitude!,
+                          toLongitude: widget.toLongitude!,
+                          pickupContactName: widget.pickupContactName!,
+                          pickupContactPhone: widget.pickupContactPhone!,
+                          toAddress: widget.toAddress!,
                           vehicleList: vehicleCategoriesAPIProvider
                               .vehicleCategoriesResponseModel!
                               .vehicleList![selectedIndex],
@@ -1727,7 +1868,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.toState,
+                        widget.toState!,
                         style: CommonStyles.black1654thin(),
                       ),
                       Text(
@@ -2598,29 +2739,6 @@ class _SelectGoodTyepBottomSheetState extends State<SelectGoodTyepBottomSheet> {
       });
     }
 
-    //  else {
-    //   selectedGoodTye = List.generate(
-    //       context
-    //           .read<ListGoodTypeAPIProvider>()
-    //           .goodsTypeResponseModel!
-    //           .categoryList!
-    //           .length,
-    //       (index) => false);
-    //   textEditingController = List.generate(
-    //       context
-    //           .read<ListGoodTypeAPIProvider>()
-    //           .goodsTypeResponseModel!
-    //           .categoryList!
-    //           .length,
-    //       (index) => TextEditingController());
-    //   selectedUnit = List.generate(
-    //       context
-    //           .read<ListGoodTypeAPIProvider>()
-    //           .goodsTypeResponseModel!
-    //           .categoryList!
-    //           .length,
-    //       (index) => null);
-    // }
     super.initState();
   }
 
@@ -2712,7 +2830,7 @@ class _SelectGoodTyepBottomSheetState extends State<SelectGoodTyepBottomSheet> {
                   itemBuilder: ((context, index) {
                     return InkWell(
                         onTap: () async {
-                          final result = await showModalBottomSheet(
+                          /*  final result = await showModalBottomSheet(
                               context: context,
                               isScrollControlled: true,
                               shape: const RoundedRectangleBorder(
@@ -2747,7 +2865,7 @@ class _SelectGoodTyepBottomSheetState extends State<SelectGoodTyepBottomSheet> {
                               // selectedUnit[index] = result['su'];
                             }
                           }
-                          setState(() {});
+                          setState(() {});*/
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
