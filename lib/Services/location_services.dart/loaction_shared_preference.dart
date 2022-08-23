@@ -54,6 +54,8 @@ class SharedPreference with ChangeNotifier {
           "${place.street} ${place.subLocality},${place.locality},${place.subAdministrativeArea}";
       address =
           "${place.street} ${place.subLocality},${place.locality},${place.subAdministrativeArea}";
+
+      print("Shared address ------" + address.toString());
     }
   }
 

@@ -2,7 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:new_ank_customer/Services/apiProvider/banner_api_provider.dart';
 import 'package:new_ank_customer/Services/apiProvider/cancel_reason_api_provider.dart';
+import 'package:new_ank_customer/Services/apiProvider/coupon_api_provider.dart';
 import 'package:new_ank_customer/Services/apiProvider/nearby_driver_api_provider.dart';
 import 'package:new_ank_customer/Services/apiProvider/order_specific_api_provider.dart';
 import 'package:new_ank_customer/Services/apiProvider/unit_list_api_provider.dart';
@@ -100,7 +102,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<NearbyDriverListAPIProvider>(
             create: (_) => NearbyDriverListAPIProvider()),
         ChangeNotifierProvider<CancelReasonAPIProvider>(
-            create: (_) => CancelReasonAPIProvider())
+            create: (_) => CancelReasonAPIProvider()),
+        ChangeNotifierProvider<BannerAPIProvider>(
+            create: (_) => BannerAPIProvider()),
+        ChangeNotifierProvider<CouponAPIProvider>(
+            create: (_) => CouponAPIProvider())
       ],
       child: AuthWidgetBuilder(
         builder:
@@ -114,7 +120,7 @@ class MyApp extends StatelessWidget {
             routes: {
               'SplashScreen': (context) => const SplashScreen(),
               'SignInPage': (context) => const SignInPage(),
-              'MainHomePage': (context) => const MainHomePage(),
+              'MainHomePage': (BuildContext context) => MainHomePage(),
               'OrderPage': (context) => const OrderPage(),
               'PaymentPage': (context) => const PaymentPage(),
               'ProfileSetting': (context) => const ProfileSetting(),
@@ -194,7 +200,7 @@ class _GetLoginUserState extends State<GetLoginUser> {
           .read<VerifyUserLoginAPIProvider>()
           .getUser(
               deviceToken: token ?? "NA",
-              deviceType: "ANKPartner",
+              deviceType: "ANKUser",
               phoneNumber: loggedInUserProvider.phoneNo!.substring(
                   loggedInUserProvider.phoneNo!.length - 10,
                   loggedInUserProvider.phoneNo!.length))

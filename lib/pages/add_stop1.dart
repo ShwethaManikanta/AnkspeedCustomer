@@ -133,48 +133,85 @@ class _AddStop1State extends State<AddStop1> {
   }
 
   buildSearch() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      width: double.infinity,
-      child: Card(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-        elevation: 10,
-        child: Row(
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(5.0),
-              child: Icon(
-                Icons.search_rounded,
-                color: Colors.black54,
-              ),
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+          width: double.infinity,
+          child: Card(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0)),
+            elevation: 10,
+            child: Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(5.0),
+                  child: Icon(
+                    Icons.search_rounded,
+                    color: Colors.black54,
+                  ),
+                ),
+                Expanded(
+                  child: TextFormField(
+                    onChanged: (value) {
+                      if (value.isNotEmpty) {
+                        autoCompleteSearch(value);
+                      }
+                    },
+                    cursorColor: Colors.black,
+                    readOnly: false,
+                    controller: _autocompleteLocationController,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    style: CommonStyles.black13thin(),
+                    decoration: const InputDecoration(
+                        hintText: 'Search your area,street name.. ',
+                        isDense: false,
+                        contentPadding: EdgeInsets.only(
+                            top: 10, bottom: 10, left: 8, right: 8),
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none),
+                  ),
+                ),
+              ],
             ),
-            Expanded(
-              child: TextFormField(
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    autoCompleteSearch(value);
-                  }
-                },
-                cursorColor: Colors.black,
-                readOnly: false,
-                controller: _autocompleteLocationController,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                style: CommonStyles.black13thin(),
-                decoration: const InputDecoration(
-                    hintText: 'Search your area,street name.. ',
-                    isDense: false,
-                    contentPadding:
-                        EdgeInsets.only(top: 10, bottom: 10, left: 8, right: 8),
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    disabledBorder: InputBorder.none),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        TextButton(
+          onPressed: () {
+            Utils.showLoaderDialog(context);
+            Navigator.of(context).pop();
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => AddStop1Map(
+                      dropAddress: widget.dropLocation.toString(),
+                      latitude: SharedPreference.latitude!,
+                      longitude: SharedPreference.longitude!,
+                      toLong: widget.toLong,
+                      toLat: widget.toLat,
+                    )));
+          },
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  // if (result != null &&
+                  //     result.predictions != null &&
+                  //     mounted) {
+                  //   predictions = result.predictions!;
+                  //   _fetchingAutoComplete = false;
+                  // }
+                },
+                icon: Icon(Icons.my_location_outlined),
+              ),
+              Text(
+                "Use My Current Location",
+                style: CommonStyles.black13(),
+              )
+            ],
+          ),
+        )
+      ],
     );
   }
 
@@ -283,10 +320,10 @@ class _AddStop1State extends State<AddStop1> {
                                     },
                                     child: Row(
                                       children: [
-                                        const Icon(
+                                        /* const Icon(
                                           Icons.location_history,
                                           size: 28,
-                                        ),
+                                        ),*/
                                         Utils.getSizedBox(width: 10),
                                         Expanded(
                                           child: Column(

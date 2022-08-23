@@ -1,12 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:new_ank_customer/Models/login_model.dart';
+import 'package:new_ank_customer/Models/image_upload_model.dart';
 import 'package:new_ank_customer/Models/order_track_model.dart';
-import 'package:new_ank_customer/Models/otp_model.dart';
 import 'package:new_ank_customer/Models/profile_model.dart';
-import 'package:new_ank_customer/Models/profile_view_model.dart';
-import 'package:new_ank_customer/Models/resent_otp_model.dart';
 import 'package:http/http.dart';
 
 ApiServices apiServices = ApiServices();
@@ -121,6 +119,38 @@ class ApiServices {
     }
     return orderAcceptRejectResponse;
   }
+
+  Future<ImageUploadResponse?> uploadImage(File imagePath) async {
+    ImageUploadResponse? imageUploadResponse;
+    final uri = Uri.parse(
+        'https://chillkrt.in/True_drivers_admin/index.php/Api/doUpload');
+    var multiPartRequest = MultipartRequest("POST", uri);
+    multiPartRequest.fields['file_type'] = "driver";
+    multiPartRequest.files
+        .add(await MultipartFile.fromPath('file_name', imagePath.path));
+    var result = await multiPartRequest.send();
+
+    final response = await Response.fromStream(result);
+
+    if (response.statusCode == 200) {
+      print("Image Uploaded" + response.body);
+      final jsonResponse = jsonDecode(response.body);
+
+      imageUploadResponse = ImageUploadResponse.fromJson(jsonResponse);
+    }
+    return imageUploadResponse;
+
+    // var response = await Dio().post(
+    //     'https://chillkrt.in/closetobuy/index.php/api/Api_vendor/doupload',
+    //     data: param);
+    // print('Response data: ${response.data}');
+    // print('Response status: ${response.statusCode}');
+    // filevalueres = response.data['file_name'];
+    // imageLink = response.data['file_url'];
+    // print('Response body: ${response.data['file_name']}');
+    // print('Response link: ${imageLink}');
+  }
+
   // ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 
 }

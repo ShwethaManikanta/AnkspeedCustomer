@@ -3,12 +3,13 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:new_ank_customer/Services/location_services.dart/loaction_shared_preference.dart';
 import 'package:new_ank_customer/common/color_const.dart';
 import 'package:new_ank_customer/common/common_styles.dart';
 import 'package:new_ank_customer/pages/search_page.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:location/location.dart' as loc;
 import '../../common/utils.dart';
 import 'package:marquee/marquee.dart';
 import '../rentalPackages/rental_packages.dart';
@@ -23,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   LatLng _initialcameraposition = LatLng(20.5937, 78.9629);
   GoogleMapController? _controller;
-  final Location _location = Location();
+  final loc.Location _location = loc.Location();
   final CarouselController controller = CarouselController();
 
   bool selectRideScreen = false;
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
         CameraPosition(
             target:
                 LatLng(SharedPreference.latitude!, SharedPreference.longitude!),
-            zoom: 15),
+            zoom: 16.5),
       ),
     );
   }
@@ -94,9 +95,9 @@ class _HomePageState extends State<HomePage> {
         buildMap(),
         buildMapPickLocation(),
         DraggableScrollableSheet(
-            minChildSize: 0.4,
-            maxChildSize: 0.4,
-            initialChildSize: 0.4,
+            minChildSize: 0.37,
+            maxChildSize: 0.37,
+            initialChildSize: 0.37,
             expand: true,
             snap: false,
             builder: (context, ScrollController scrollController) {
@@ -177,13 +178,13 @@ class _HomePageState extends State<HomePage> {
                                       return Container(
                                         width:
                                             MediaQuery.of(context).size.width *
-                                                0.95,
+                                                0.85,
                                         height: 150,
                                         margin: EdgeInsets.symmetric(
                                             horizontal: 0, vertical: 10),
                                         child: ClipRRect(
                                             borderRadius:
-                                                BorderRadius.circular(15),
+                                                BorderRadius.circular(20),
                                             child: Image.asset(
                                               imageBanner[currentIndex],
                                               fit: BoxFit.fill,
@@ -191,7 +192,7 @@ class _HomePageState extends State<HomePage> {
                                       );
                                     },
                                     options: CarouselOptions(
-                                      height: 250,
+                                      height: 200,
                                       autoPlay: true,
                                       pageSnapping: true,
                                       autoPlayCurve: Curves.easeInOut,
@@ -296,6 +297,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  late LatLng latLngCamera;
+
   int activeIndex = 1;
   bool _isWidgetLoading = false;
 
@@ -315,7 +318,8 @@ class _HomePageState extends State<HomePage> {
         });
       },
       onCameraMove: (value) {
-        _initialcameraposition = value.target;
+        SharedPreference.selectedLatitude = value.target.latitude;
+        SharedPreference.selectedLongitude = value.target.longitude;
       },
       onCameraMoveStarted: () {
         setState(() {
@@ -353,7 +357,7 @@ class _HomePageState extends State<HomePage> {
                 CameraPosition(
                     target: LatLng(SharedPreference.latitude!,
                         SharedPreference.longitude!),
-                    zoom: 15),
+                    zoom: 17.5),
               ),
             );
           },
@@ -393,88 +397,115 @@ class _HomePageState extends State<HomePage> {
 
     return Positioned(
       top: 45,
-      child: Align(
-        alignment: Alignment.center,
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 15),
-          height: 50,
-          width: MediaQuery.of(context).size.width * 0.92,
-          decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  spreadRadius: 10,
-                  offset: Offset(2, 2),
-                  blurRadius: 12,
-                  color: Color.fromRGBO(0, 0, 0, 0.16),
+      child: InkWell(
+        onTap: () async {
+          final String result =
+              await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const SearchPage(
+                        initialLogin: true,
+                        isPickupLocation: true,
+                      )));
+          // final String result = await Navigator.of(context)
+          //     .push(MaterialPageRoute(builder: (context) {
+          //   return const PlacePickGoogleMaps();
+          // }));
+          if (result.isNotEmpty) {
+            _controller!.animateCamera(
+              CameraUpdate.newCameraPosition(
+                CameraPosition(
+                    target: LatLng(SharedPreference.latitude!,
+                        SharedPreference.longitude!),
+                    zoom: 17.5),
+              ),
+            );
+          }
+          setState(() {});
+        },
+        child: Align(
+          alignment: Alignment.center,
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 15),
+            height: 50,
+            width: MediaQuery.of(context).size.width * 0.92,
+            decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    spreadRadius: 10,
+                    offset: Offset(2, 2),
+                    blurRadius: 12,
+                    color: Color.fromRGBO(0, 0, 0, 0.16),
+                  )
+                ],
+                color: ColorConstant.whiteA700,
+                borderRadius: BorderRadius.circular(8)),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.location_history,
+                  color: Colors.green,
+                  size: 30,
+                ),
+                Expanded(
+                  child: Marquee(
+                    text: SharedPreference.address!.isEmpty
+                        ? SharedPreference.currentAddress!
+                        : SharedPreference.address!,
+                    style: CommonStyles.black14(),
+                    scrollAxis: Axis.horizontal,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    blankSpace: 20.0,
+                    velocity: 100.0,
+                    startPadding: 2,
+                    pauseAfterRound: const Duration(seconds: 3),
+                    accelerationDuration: const Duration(seconds: 1),
+                    accelerationCurve: Curves.linear,
+                    decelerationDuration: const Duration(milliseconds: 500),
+                    decelerationCurve: Curves.easeOut,
+                  ),
+                ),
+                Utils.getSizedBox(width: 3),
+                InkWell(
+                  onTap: () async {
+                    final String result =
+                        await Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const SearchPage(
+                                  initialLogin: true,
+                                  isPickupLocation: true,
+                                )));
+                    // final String result = await Navigator.of(context)
+                    //     .push(MaterialPageRoute(builder: (context) {
+                    //   return const PlacePickGoogleMaps();
+                    // }));
+                    if (result.isNotEmpty) {
+                      _controller!.animateCamera(
+                        CameraUpdate.newCameraPosition(
+                          CameraPosition(
+                              target: LatLng(SharedPreference.latitude!,
+                                  SharedPreference.longitude!),
+                              zoom: 15),
+                        ),
+                      );
+                    }
+                    setState(() {});
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Change",
+                        style: CommonStyles.green15(),
+                      ),
+                      const Icon(
+                        Icons.keyboard_arrow_right_sharp,
+                        size: 20,
+                        color: Colors.black,
+                      )
+                    ],
+                  ),
                 )
               ],
-              color: ColorConstant.whiteA700,
-              borderRadius: BorderRadius.circular(8)),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.location_history,
-                color: Colors.green,
-                size: 30,
-              ),
-              Expanded(
-                child: Marquee(
-                  text: SharedPreference.currentAddress!,
-                  style: CommonStyles.black14(),
-                  scrollAxis: Axis.horizontal,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  blankSpace: 20.0,
-                  velocity: 100.0,
-                  startPadding: 2,
-                  pauseAfterRound: const Duration(seconds: 3),
-                  accelerationDuration: const Duration(seconds: 1),
-                  accelerationCurve: Curves.linear,
-                  decelerationDuration: const Duration(milliseconds: 500),
-                  decelerationCurve: Curves.easeOut,
-                ),
-              ),
-              Utils.getSizedBox(width: 3),
-              /*  InkWell(
-                onTap: () async {
-                  final String result =
-                      await Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const SearchPage(
-                                initialLogin: true,
-                                isPickupLocation: true,
-                              )));
-                  // final String result = await Navigator.of(context)
-                  //     .push(MaterialPageRoute(builder: (context) {
-                  //   return const PlacePickGoogleMaps();
-                  // }));
-                  if (result.isNotEmpty) {
-                    _controller!.animateCamera(
-                      CameraUpdate.newCameraPosition(
-                        CameraPosition(
-                            target: LatLng(SharedPreference.latitude!,
-                                SharedPreference.longitude!),
-                            zoom: 15),
-                      ),
-                    );
-                  }
-                  setState(() {});
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Change",
-                      style: CommonStyles.green15(),
-                    ),
-                    const Icon(
-                      Icons.keyboard_arrow_right_sharp,
-                      size: 20,
-                      color: Colors.black,
-                    )
-                  ],
-                ),
-              )*/
-            ],
+            ),
           ),
         ),
       ),
@@ -483,7 +514,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget buildTab() {
     return Container(
-      height: 60,
+      height: 70,
       /* decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(

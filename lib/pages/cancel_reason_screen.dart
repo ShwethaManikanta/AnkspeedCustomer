@@ -149,14 +149,8 @@ class _CancelReasonScreenState extends State<CancelReasonScreen> {
             reasonID: selectedIndex,
             reasonText: reasonController.text);
 
-        Navigator.of(context).pop();
-        Navigator.of(context).pop();
-        Navigator.of(context).pop();
-
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => MainHomePage()));
+        await Navigator.of(context).pushNamedAndRemoveUntil(
+            'MainHomePage', (Route<dynamic> route) => false);
       },
     );
 

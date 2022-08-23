@@ -92,8 +92,14 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                                   .profileViewResponse!.userDetails!.email) {
                         await apiServices
                             .updateProfile(
-                                userName: nameController.text,
-                                userEmail: emailController.text,
+                                userName: nameController.text.isEmpty
+                                    ? profileAPIProvider.profileViewResponse!
+                                        .userDetails!.userName!
+                                    : nameController.text,
+                                userEmail: emailController.text.isEmpty
+                                    ? profileAPIProvider.profileViewResponse!
+                                        .userDetails!.email!
+                                    : emailController.text,
                                 userPhoneNumber: profileAPIProvider
                                     .profileViewResponse!.userDetails!.mobile!)
                             .whenComplete(() {
@@ -103,7 +109,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                       } else {
                         Utils.showSnackBar(
                             context: context,
-                            text: "Check your Profile Detils");
+                            text: "Check your Profile Details");
                       }
                     }
                   },

@@ -1,12 +1,14 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animations/loading_animations.dart';
 import 'package:new_ank_customer/Services/apiProvider/order_history_api_provider.dart';
 import 'package:new_ank_customer/Services/apiProvider/order_specific_api_provider.dart';
+import 'package:new_ank_customer/Services/location_services.dart/loaction_shared_preference.dart';
 import 'package:provider/provider.dart';
 import 'package:new_ank_customer/Services/api_services.dart';
 import 'dart:async';
@@ -82,7 +84,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     //     "--------" +
     //     widget.destinationLocation.longitude.toString());
     if (mounted) {
-      timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         if (mounted) {
           apiServices
               .trackOrder(
@@ -135,14 +137,16 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
 
   void setSourceAndDestinationIcons() async {
     sourceIcon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(devicePixelRatio: 2.5), 'assets/source.png');
+        const ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/images/srtLoc.png');
 
     destinationIcon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(devicePixelRatio: 2.5), 'assets/des1.png');
+        const ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/images/endLoc.png');
 
     liveLocationIcon = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(devicePixelRatio: 2.5),
-        'assets/driving_pin.png');
+        'assets/images/stopLoc.png');
   }
 
   void updatePinOnMap(
@@ -194,6 +198,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   }
 
   double rating = 0.0;
+
+  LatLng _initialcameraposition = LatLng(20.5937, 78.9629);
+  // GoogleMapController? googleMapController;
 
   @override
   Widget build(BuildContext context) {
@@ -258,15 +265,32 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.done_all_sharp,
-                    color: Colors.brown,
+                  Container(
+                    height: 200,
+                    child: GoogleMap(
+                        myLocationEnabled: false,
+                        compassEnabled: false,
+                        tiltGesturesEnabled: false,
+                        zoomControlsEnabled: false,
+                        markers: _markers,
+                        polylines: Set<Polyline>.of(polylines.values),
+                        mapType: MapType.normal,
+                        initialCameraPosition:
+                            CameraPosition(target: _initialcameraposition),
+                        onMapCreated: (GoogleMapController controller) {
+                          controller.setMapStyle(MapStyle.mapStyles);
+                          _controller.complete(controller);
+                          showPinsOnMap();
+
+                          // my map has completed being created;
+                          // i'm ready to show the pins on the map
+                        }),
                   ),
-                  Utils.getSizedBox(height: 40),
+                  /*Utils.getSizedBox(height: 20),
                   Text(
                     'Yahoo!! Order Completed!!! 🥳',
                     style: CommonStyles.black1254thin(),
-                  )
+                  )*/
                 ],
               )),
         ],
@@ -334,7 +358,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
         target: initialTarget);
     return Scaffold(
       body: GoogleMap(
-          myLocationEnabled: true,
+          myLocationEnabled: false,
           compassEnabled: true,
           tiltGesturesEnabled: false,
           markers: _markers,
@@ -390,14 +414,14 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       sourcePinInfo = PinInformation(
           locationName: "Start Location",
           location: pinPosition,
-          pinPath: "assets/driving_pin.png",
+          pinPath: "assets/images/srtLoc.png",
           avatarPath: "assets/friend1.jpg",
           labelColor: Colors.blueAccent);
 
       destinationPinInfo = PinInformation(
           locationName: "End Location",
           location: destPosition,
-          pinPath: "assets/destination_map_marker.png",
+          pinPath: "assets/images/endLoc.png",
           avatarPath: "assets/friend2.jpg",
           labelColor: Colors.purple);
 
@@ -483,14 +507,14 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       sourcePinInfo = PinInformation(
           locationName: "Start Location",
           location: pinPosition,
-          pinPath: "assets/driving_pin.png",
+          pinPath: "assets/images/srtLoc.png",
           avatarPath: "assets/friend1.jpg",
           labelColor: Colors.blueAccent);
 
       destinationPinInfo = PinInformation(
           locationName: "End Location",
           location: destPosition,
-          pinPath: "assets/destination_map_marker.png",
+          pinPath: "assets/images/endLoc.png",
           avatarPath: "assets/friend2.jpg",
           labelColor: Colors.purple);
 

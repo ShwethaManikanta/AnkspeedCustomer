@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:new_ank_customer/Services/location_services.dart/loaction_shared_preference.dart';
 import 'package:new_ank_customer/common/common_styles.dart';
 import 'package:new_ank_customer/common/utils.dart';
+import 'package:new_ank_customer/pages/add_stop1.dart';
 import 'package:new_ank_customer/pages/add_stop2.dart';
 import 'package:new_ank_customer/pages/add_stop3.dart';
 import 'package:new_ank_customer/pages/bookPage/book_vehicle.dart';
@@ -58,7 +58,6 @@ class _AddStop3PinMapLocationState extends State<AddStop3PinMapLocation> {
   Map<PolylineId, Polyline> polylines = {};
 
   List<LatLng> latlng = [];
-
   addLocation() {
     latlng.add(LatLng(widget.fromLat, widget.fromLong));
     latlng.add(LatLng(widget.toLatitude, widget.toLongitude));
@@ -68,8 +67,7 @@ class _AddStop3PinMapLocationState extends State<AddStop3PinMapLocation> {
       latlng.add(LatLng(widget.stop2Lat!, widget.stop2Long!));
     if (widget.stop3Lat != null)
       latlng.add(LatLng(widget.stop3Lat!, widget.stop3Long!));
-
-    print("Locatio Data ---------" + latlng.length.toString());
+    print("Latlong Length" + latlng.length.toString());
   }
 
   List<String> addAddressList = [];
@@ -121,89 +119,232 @@ class _AddStop3PinMapLocationState extends State<AddStop3PinMapLocation> {
     homePageProvider.getDistance(widget.toLatitude, widget.toLongitude);
   }
 
-  Future<void> getNearDriver() async {
-    var myLocationPostition =
-        LatLng(latlng.first.latitude, latlng.first.longitude);
+  getNearDriver() {
+    print("2 ----------- " + latlng.length.toString());
 
-    print(
-        "-------------------${LatLng(latlng.first.latitude, latlng.first.longitude)}");
-    _markers.add(Marker(
-        markerId: const MarkerId("MyPosition"),
-        position: myLocationPostition,
-        draggable: false,
-        zIndex: 2,
-        flat: true,
-        anchor: const Offset(0.5, 0.5),
-        icon: myLocation));
+    if (latlng.length == 2) {
+      var myLocationPostition =
+          LatLng(latlng.first.latitude, latlng.first.longitude);
 
-    print(
-        "---End LatLong----------------${LatLng(latlng.last.latitude, latlng.last.longitude)}");
-    var endLocationPostition =
-        LatLng(latlng.last.latitude, latlng.last.longitude);
-    _markers.add(Marker(
-        markerId: const MarkerId("EndPosition"),
-        position: endLocationPostition,
-        draggable: false,
-        zIndex: 2,
-        flat: true,
-        anchor: const Offset(0.5, 0.5),
-        icon: endLocation));
-
-    if (widget.stop1Lat != null)
+      print(
+          "-------------------${LatLng(latlng.first.latitude, latlng.first.longitude)}");
       _markers.add(Marker(
-          markerId: const MarkerId("stopPosition"),
-          position: LatLng(latlng[1].latitude, latlng[1].longitude),
+          markerId: const MarkerId("MyPosition"),
+          position: myLocationPostition,
           draggable: false,
           zIndex: 2,
           flat: true,
           anchor: const Offset(0.5, 0.5),
-          icon: stopLocation));
+          icon: myLocation));
 
-    if (widget.stop2Lat != null)
+      print(
+          "---End LatLong----------------${LatLng(latlng.last.latitude, latlng.last.longitude)}");
+      var endLocationPostition =
+          LatLng(latlng.last.latitude, latlng.last.longitude);
       _markers.add(Marker(
-          markerId: const MarkerId("stop2Position"),
-          position: LatLng(latlng[2].latitude, latlng[2].longitude),
+          markerId: const MarkerId("EndPosition"),
+          position: endLocationPostition,
           draggable: false,
           zIndex: 2,
           flat: true,
           anchor: const Offset(0.5, 0.5),
-          icon: stopLocation));
+          icon: endLocation));
+      getMarkerIcon();
+    } else if (latlng.length == 3) {
+      print("3 ----------- " + latlng.length.toString());
 
-    if (widget.stop3Lat != null)
+      var myLocationPostition =
+          LatLng(latlng.first.latitude, latlng.first.longitude);
+
+      print(
+          "-------------------${LatLng(latlng.first.latitude, latlng.first.longitude)}");
       _markers.add(Marker(
-          markerId: const MarkerId("stop3Position"),
-          position: LatLng(latlng[3].latitude, latlng[3].longitude),
+          markerId: const MarkerId("MyPosition"),
+          position: myLocationPostition,
           draggable: false,
           zIndex: 2,
           flat: true,
           anchor: const Offset(0.5, 0.5),
-          icon: stopLocation));
-    // setState(() {});
+          icon: myLocation));
+
+      print(
+          "---End LatLong----------------${LatLng(latlng.last.latitude, latlng.last.longitude)}");
+      var endLocationPostition =
+          LatLng(latlng.last.latitude, latlng.last.longitude);
+      _markers.add(Marker(
+          markerId: const MarkerId("EndPosition"),
+          position: endLocationPostition,
+          draggable: false,
+          zIndex: 2,
+          flat: true,
+          anchor: const Offset(0.5, 0.5),
+          icon: endLocation));
+
+      if (latlng[1] != null)
+        _markers.add(Marker(
+            markerId: const MarkerId("stopPosition"),
+            position: LatLng(latlng[1].latitude, latlng[1].longitude),
+            draggable: false,
+            zIndex: 2,
+            flat: true,
+            anchor: const Offset(0.5, 0.5),
+            icon: stopLocation));
+    } else if (latlng.length == 4) {
+      print("4 ----------- " + latlng.length.toString());
+
+      var myLocationPostition =
+          LatLng(latlng.first.latitude, latlng.first.longitude);
+
+      print(
+          "-------------------${LatLng(latlng.first.latitude, latlng.first.longitude)}");
+      _markers.add(Marker(
+          markerId: const MarkerId("MyPosition"),
+          position: myLocationPostition,
+          draggable: false,
+          zIndex: 2,
+          flat: true,
+          anchor: const Offset(0.5, 0.5),
+          icon: myLocation));
+
+      print(
+          "---End LatLong----------------${LatLng(latlng.last.latitude, latlng.last.longitude)}");
+      var endLocationPostition =
+          LatLng(latlng.last.latitude, latlng.last.longitude);
+      _markers.add(Marker(
+          markerId: const MarkerId("EndPosition"),
+          position: endLocationPostition,
+          draggable: false,
+          zIndex: 2,
+          flat: true,
+          anchor: const Offset(0.5, 0.5),
+          icon: endLocation));
+
+      if (latlng[1] != null)
+        _markers.add(Marker(
+            markerId: const MarkerId("stopPosition"),
+            position: LatLng(latlng[1].latitude, latlng[1].longitude),
+            draggable: false,
+            zIndex: 2,
+            flat: true,
+            anchor: const Offset(0.5, 0.5),
+            icon: stopLocation));
+
+      if (latlng[2] != null)
+        _markers.add(Marker(
+            markerId: const MarkerId("stop2Position"),
+            position: LatLng(latlng[2].latitude, latlng[2].longitude),
+            draggable: false,
+            zIndex: 2,
+            flat: true,
+            anchor: const Offset(0.5, 0.5),
+            icon: stopLocation));
+    } else if (latlng.length == 5) {
+      print("5 ----------- " + latlng.length.toString());
+
+      var myLocationPostition =
+          LatLng(latlng.first.latitude, latlng.first.longitude);
+
+      print(
+          "-------------------${LatLng(latlng.first.latitude, latlng.first.longitude)}");
+      _markers.add(Marker(
+          markerId: const MarkerId("MyPosition"),
+          position: myLocationPostition,
+          draggable: false,
+          zIndex: 2,
+          flat: true,
+          anchor: const Offset(0.5, 0.5),
+          icon: myLocation));
+
+      print(
+          "---End LatLong----------------${LatLng(latlng.last.latitude, latlng.last.longitude)}");
+      var endLocationPostition =
+          LatLng(latlng.last.latitude, latlng.last.longitude);
+      _markers.add(Marker(
+          markerId: const MarkerId("EndPosition"),
+          position: endLocationPostition,
+          draggable: false,
+          zIndex: 2,
+          flat: true,
+          anchor: const Offset(0.5, 0.5),
+          icon: endLocation));
+
+      if (latlng[1] != null)
+        _markers.add(Marker(
+            markerId: const MarkerId("stopPosition"),
+            position: LatLng(latlng[1].latitude, latlng[1].longitude),
+            draggable: false,
+            zIndex: 2,
+            flat: true,
+            anchor: const Offset(0.5, 0.5),
+            icon: stopLocation));
+
+      if (latlng[2] != null)
+        _markers.add(Marker(
+            markerId: const MarkerId("stop2Position"),
+            position: LatLng(latlng[2].latitude, latlng[2].longitude),
+            draggable: false,
+            zIndex: 2,
+            flat: true,
+            anchor: const Offset(0.5, 0.5),
+            icon: stopLocation));
+
+      if (latlng[3] != null)
+        _markers.add(Marker(
+            markerId: const MarkerId("stop3Position"),
+            position: LatLng(latlng[3].latitude, latlng[3].longitude),
+            draggable: false,
+            zIndex: 2,
+            flat: true,
+            anchor: const Offset(0.5, 0.5),
+            icon: stopLocation));
+    }
+
+    setState(() {});
   }
 
   getMarkerIcon() async {
-    myLocation = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(devicePixelRatio: 2.5),
-        'assets/images/srtLoc.png');
+    if (latlng.length == 2) {
+      myLocation = await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(devicePixelRatio: 2.5),
+          'assets/images/srtLoc.png');
 
-    endLocation = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(devicePixelRatio: 2.5),
-        'assets/images/endLoc.png');
-    stopLocation = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(devicePixelRatio: 2.5),
-        'assets/images/stopLoc.png');
+      endLocation = await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(devicePixelRatio: 2.5),
+          'assets/images/endLoc.png');
+    } else if (latlng.length >= 3) {
+      myLocation = await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(devicePixelRatio: 2.5),
+          'assets/images/srtLoc.png');
+
+      endLocation = await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(devicePixelRatio: 2.5),
+          'assets/images/endLoc.png');
+      if (latlng.length != 2)
+        stopLocation = await BitmapDescriptor.fromAssetImage(
+            const ImageConfiguration(devicePixelRatio: 2.5),
+            'assets/images/stopLoc.png');
+    }
   }
 
   @override
   void initState() {
-    getMarkerIcon();
-
     addLocation();
+
     addingAddressList();
     _addPolyLine();
+    getMarkerIcon();
+
+    print("Locatio Data ---------" + latlng.length.toString());
 
     // TODO: implement initState
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    getMarkerIcon();
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -298,31 +439,50 @@ class _AddStop3PinMapLocationState extends State<AddStop3PinMapLocation> {
                                     )),
                               ),
                               Expanded(
-                                  child: IconButton(
-                                onPressed: () async {
-                                  print("latLong Delete Length ----------" +
-                                      latlng.length.toString());
-                                  print("addAddress Delete Length ----------" +
-                                      addAddressList.length.toString());
+                                  child: Visibility(
+                                visible: latlng.length != 2,
+                                child: IconButton(
+                                  onPressed: () async {
+                                    print("latLong Delete Length ----------" +
+                                        latlng.length.toString());
+                                    print(
+                                        "addAddress Delete Length ----------" +
+                                            addAddressList.length.toString());
 
-                                  await latlng.removeAt(index);
+                                    await latlng.removeAt(index);
 
-                                  await addAddressList.removeAt(index);
-                                  await getNearDriver();
+                                    await addAddressList.removeAt(index);
 
-                                  print("latLong Delete Length 12----------" +
-                                      latlng.length.toString());
-                                  print(
-                                      "addAddress Delete Length 12----------" +
+                                    setState(() {
+                                      getNearDriver();
+                                      getMarkerIcon();
+                                    });
+
+                                    setState(() {
+                                      latlng;
+                                      print("After remove --------" +
+                                          latlng.length.toString());
+                                      addAddressList;
+                                      print("After remove --------" +
                                           addAddressList.length.toString());
-                                },
-                                icon: Icon(Icons.cancel_outlined),
+                                      getNearDriver();
+                                      getMarkerIcon();
+                                    });
+                                  },
+                                  icon: Icon(Icons.cancel_outlined),
+                                ),
                               ))
                             ],
                           ),
                         ),
                       );
                     },
+                    /* onReorderStart: (context) {
+                      setState(() {
+                        latlng;
+                        addAddressList;
+                      });
+                    },*/
                     onReorder: orderRearrange,
                   ),
                 ),
@@ -342,7 +502,15 @@ class _AddStop3PinMapLocationState extends State<AddStop3PinMapLocation> {
                             onPressed: () {
                               print("latLong Add Stop Length -----------" +
                                   latlng.length.toString());
-                              if (latlng.length == 3) {
+                              if (latlng.length == 2) {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => AddStop1(
+                                          pickupLoction: addAddressList.first,
+                                          dropLocation: addAddressList.last,
+                                          toLong: latlng.last.longitude,
+                                          toLat: latlng.last.latitude,
+                                        )));
+                              } else if (latlng.length == 3) {
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => AddStop2(
                                           fromLat: latlng.first.latitude,
@@ -386,7 +554,24 @@ class _AddStop3PinMapLocationState extends State<AddStop3PinMapLocation> {
                           height: 40,
                           onPressed: () {
                             setState(() {
-                              if (latlng.length == 3) {
+                              if (latlng.length == 2) {
+                                Navigator.of(context)
+                                    .pushReplacement(MaterialPageRoute(
+                                        builder: (context) => BookVehiclePage(
+                                              fromLat: latlng.first.latitude,
+                                              fromLong: latlng.first.longitude,
+                                              fromAddress: addAddressList.first,
+                                              toLatitude: latlng.last.latitude,
+                                              toLongitude:
+                                                  latlng.last.longitude,
+                                              toAddress: addAddressList.last,
+                                              toState: widget.toState,
+                                              pickupContactName:
+                                                  widget.pickUpContactName,
+                                              pickupContactPhone:
+                                                  widget.pickUpContactNumber,
+                                            )));
+                              } else if (latlng.length == 3) {
                                 Navigator.of(context)
                                     .pushReplacement(MaterialPageRoute(
                                         builder: (context) => BookVehiclePage(

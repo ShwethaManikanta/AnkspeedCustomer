@@ -20,16 +20,20 @@ class BookingSuccessfull extends StatefulWidget {
 
 class _BookingSuccessfullState extends State<BookingSuccessfull>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+  AnimationController? _controller;
 
   @override
   void initState() {
     super.initState();
-    // startTimer();
-
     _controller =
         AnimationController(vsync: this, duration: Duration(minutes: 5));
-    _controller.forward();
+    _controller!.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller!.dispose();
+    super.dispose();
   }
 
   @override
@@ -72,9 +76,9 @@ class _BookingSuccessfullState extends State<BookingSuccessfull>
                       ),
                       Countdown(
                         animation: StepTween(
-                          begin: 10 * 60,
+                          begin: 5 * 60,
                           end: 0,
-                        ).animate(_controller),
+                        ).animate(_controller!),
                       ),
                       Text(
                         "  Mins",

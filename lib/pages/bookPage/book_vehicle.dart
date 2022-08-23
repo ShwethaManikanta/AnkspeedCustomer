@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -28,12 +29,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:new_ank_customer/pages/goods_type_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../Models/unit_list_model.dart';
 import '../../Services/apiProvider/order_history_api_provider.dart';
 import '../../Services/apiProvider/vehicle_categories_api_provider.dart';
 import '../../common/clippers.dart';
 import '../../common/custom_divider.dart';
+import 'package:cashfree_pg/cashfree_pg.dart';
 
 class BookVehiclePage extends StatefulWidget {
   const BookVehiclePage({
@@ -103,26 +106,46 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
     _getPolyline();
 
     context.read<VehicleCategoriesAPIProvider>().initialize();
+    /*if (widget.stop1lat == null &&
+        widget.stop2Lat == null &&
+        widget.stop3Lat == null) {
+      print("------------ Work  if");*/
     context.read<VehicleCategoriesAPIProvider>().fetchData(
-        fromLat: double.parse("#" +
-            "${widget.fromLat!}" +
-            "#" +
-            "${widget.stop1lat!}" +
-            "#" +
-            "${widget.stop2Lat!}" +
-            "#" +
-            "${widget.stop3Lat!}"),
-        fromLong: double.parse("#" +
-            "${widget.fromLong!}" +
-            "#" +
-            "${widget.stop1long!}" +
-            "#" +
-            "${widget.stop2Long!}" +
-            "#" +
-            "${widget.stop3Long!}"),
-        toLat: widget.toLatitude!,
-        toLong: widget.toLongitude!,
+        fromLat: widget.fromLat!,
+        fromLong: widget.fromLong!,
+        toLat: widget.toLatitude!.toString(),
+        toLong: widget.toLongitude!.toString(),
         labourQuantity: 0);
+/*    } else if (widget.stop1lat != null &&
+        widget.stop2Lat == null &&
+        widget.stop3Lat == null) {
+      print("------------ Work  else if  1");
+
+      context.read<VehicleCategoriesAPIProvider>().fetchData(
+          fromLat: widget.fromLat!,
+          fromLong: widget.fromLong!,
+          toLat: "₹${widget.stop1lat}₹${widget.toLatitude}".toString(),
+          toLong: "₹${widget.stop1long}₹${widget.toLongitude}".toString(),
+          labourQuantity: 0);
+    } else if (widget.toLatitude != null &&
+        widget.stop1lat != null &&
+        widget.stop2Lat != null &&
+        widget.stop3Lat != null) {
+      print("------------ Work  else if  2");
+
+      context.read<VehicleCategoriesAPIProvider>().fetchData(
+          fromLat: widget.fromLat!,
+          fromLong: widget.fromLong!,
+          toLat:
+              "₹${widget.stop1lat}₹${widget.stop2Lat}₹${widget.stop3Lat}₹${widget.toLatitude}"
+                  .toString(),
+          toLong:
+              "₹${widget.stop1long}₹${widget.stop2Long}₹${widget.stop3Long}₹${widget.toLongitude}"
+                  .toString(),
+          labourQuantity: 0);
+    }*/
+
+    //  print("List Book Vechie --------"${double.parse(latlng.toString())});
     // getNearDriver();
     if (context.read<HomePageProvider>().markerSet.isNotEmpty) {
       context.read<HomePageProvider>().clearMarkers();
@@ -222,10 +245,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
         Provider.of<NearbyDriverListAPIProvider>(context, listen: false);
     //  _markers.clear();
     await nearByDriverList.nearByDriverList(
-        SharedPreference.latitude.toString(),
-        SharedPreference.longitude.toString(),
-        vechileId,
-        "");
+        widget.fromLat!.toString(), widget.fromLong!.toString(), vechileId, "");
     print("Fetching vehicle List");
 
     if (nearByDriverList.nearByDriverListModel!.status != "0") {
@@ -355,6 +375,8 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
     homePageProvider.getDistance(widget.toLatitude!, widget.toLongitude!);
   }
 
+  ScreenshotController screenShotController = ScreenshotController();
+
   @override
   Widget build(BuildContext context) {
     print("List -------" + latlng.length.toString());
@@ -374,11 +396,12 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
     return Stack(
       clipBehavior: Clip.none,
       children: [
+        // Screenshot(child: buildMap(), controller: controller)
         buildMap(),
         DraggableScrollableSheet(
             minChildSize: 0.50,
-            initialChildSize: 0.75,
-            maxChildSize: 0.75,
+            initialChildSize: 0.65,
+            maxChildSize: 0.65,
             builder: (context, draggableController) {
               return SingleChildScrollView(
                 controller: draggableController,
@@ -423,22 +446,15 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
   }
 
   buildMap() {
-/*    print("List ----------" + latlng.first.toString());*/
-
-    final homePageProvider = Provider.of<HomePageProvider>(context);
     return SizedBox(
       height: deviceHeight(context) * 0.5,
       child: GoogleMap(
         zoomControlsEnabled: false,
         initialCameraPosition: CameraPosition(target: _initialcameraposition),
         mapType: MapType.terrain,
-
-        // polylines: Set<Polyline>.of(homePageProvider.polylines.values),
         onMapCreated: _onMapCreated,
         markers: _markers,
         polylines: Set<Polyline>.of(polylines.values),
-
-        // markers: Set<Marker>.of(homePageProvider.markerSet),
         myLocationEnabled: false,
         myLocationButtonEnabled: false,
         mapToolbarEnabled: false,
@@ -520,7 +536,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                 children: [
                   isOutStationOrInStation(),
                   Utils.getSizedBox(height: 10),
-                  Padding(
+                  /* Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Card(
                       elevation: 10,
@@ -717,7 +733,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                         ),
                       ),
                     ),
-                  ),
+                  ),*/
                   helperWidget(),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -725,7 +741,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Shedule Time  : ',
+                          'Schedule Time  : ',
                           style: CommonStyles.black12(),
                         ),
                         Row(
@@ -1143,6 +1159,18 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                       context: context,
                       builder: (context) {
                         return Verify30PercentPayment(
+                          stop1Lat: widget.stop1lat,
+                          stop1Long: widget.stop1long,
+                          stop2Lat: widget.stop2Lat,
+                          stop2Long: widget.stop2Long,
+                          stop3Lat: widget.stop3Lat,
+                          stop3Long: widget.stop3Long,
+                          stop1Address: widget.stop1,
+                          stop2Address: widget.stop2,
+                          stop3Address: widget.stop3,
+                          fromAddress: widget.fromAddress!,
+                          fromLat: widget.fromLat!,
+                          fromLong: widget.fromLong!,
                           toLatitude: widget.toLatitude!,
                           toLongitude: widget.toLongitude!,
                           pickupContactName: widget.pickupContactName!,
@@ -1372,7 +1400,7 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SizedBox(
-              height: 325,
+              height: 430,
               child: ListView.builder(
                 physics: const BouncingScrollPhysics(),
                 primary: false,
@@ -1812,8 +1840,8 @@ class _BookVehiclePageState extends State<BookVehiclePage> {
                     context.read<VehicleCategoriesAPIProvider>().fetchData(
                         fromLat: SharedPreference.latitude!,
                         fromLong: SharedPreference.longitude!,
-                        toLat: selectedLongLat.selectedLatitude!,
-                        toLong: selectedLongLat.selectedLongitude!,
+                        toLat: selectedLongLat.selectedLatitude!.toString(),
+                        toLong: selectedLongLat.selectedLongitude!.toString(),
                         labourQuantity: 0);
                     setState(() {
                       _isSelectedHelper = false;
@@ -2266,8 +2294,9 @@ class _HelperDetailsBottomSheetState extends State<HelperDetailsBottomSheet> {
                         context.read<VehicleCategoriesAPIProvider>().fetchData(
                             fromLat: SharedPreference.latitude!,
                             fromLong: SharedPreference.longitude!,
-                            toLat: selectedLongLat.selectedLatitude!,
-                            toLong: selectedLongLat.selectedLongitude!,
+                            toLat: selectedLongLat.selectedLatitude!.toString(),
+                            toLong:
+                                selectedLongLat.selectedLongitude!.toString(),
                             labourQuantity: _selectHelpers);
                         Map<String, dynamic> map = {
                           'noh': _selectHelpers,
@@ -3622,10 +3651,22 @@ class Model {
 }
 
 class Verify30PercentPayment extends StatefulWidget {
-  const Verify30PercentPayment(
+  Verify30PercentPayment(
       {Key? key,
+      required this.fromLat,
+      required this.fromLong,
       required this.toLatitude,
       required this.toLongitude,
+      this.stop1Lat,
+      this.stop1Long,
+      this.stop2Lat,
+      this.stop2Long,
+      this.stop3Lat,
+      this.stop3Long,
+      this.stop1Address,
+      this.stop2Address,
+      this.stop3Address,
+      required this.fromAddress,
       required this.toAddress,
       required this.pickupContactName,
       required this.pickupContactPhone,
@@ -3634,11 +3675,13 @@ class Verify30PercentPayment extends StatefulWidget {
       required this.toPayAmount})
       : super(key: key);
 
-  final double toLatitude, toLongitude;
-  final String toAddress, pickupContactName, pickupContactPhone;
+  final double fromLat, fromLong, toLatitude, toLongitude;
+  double? stop1Lat, stop1Long, stop2Lat, stop2Long, stop3Lat, stop3Long;
+  final String fromAddress, toAddress, pickupContactName, pickupContactPhone;
   final VehicleList vehicleList;
   final int vehicleSelectedIndex;
   final String toPayAmount;
+  String? stop1Address, stop2Address, stop3Address;
 
   @override
   _Verify30PercentPaymentState createState() => _Verify30PercentPaymentState();
@@ -3778,41 +3821,189 @@ class _Verify30PercentPaymentState extends State<Verify30PercentPayment>
     Random rand = Random(12);
     await _animationController.forward();
     Utils.showBookingVehicle(context);
+
+    if (widget.stop1Lat == null &&
+        widget.stop2Lat == null &&
+        widget.stop3Lat == null) {
+      final bookVehicleRequestModel = BookVehicleRequestModel(
+          paidAmt: "0",
+          rideTime: "12-07-2022",
+          timeState: "1",
+          vehicleCharge: widget.vehicleList.vehiclePrice!,
+          customerName: widget.pickupContactName,
+          distance: widget.vehicleList.totalKm!,
+          duration: widget.vehicleList.time!,
+          fromAddress: widget.fromAddress,
+          fromLat: widget.fromLat.toString(),
+          fromLong: widget.fromLong.toString(),
+          labourQuantity: widget.vehicleList.labour!,
+          labourPrice: widget.vehicleList.labourTotal!,
+          categoryId: categoryId,
+          categoryQuantity: categoryQuantity,
+          gst: widget.vehicleList.gst!,
+          statePrice: widget.vehicleList.outerCharge!,
+          stateStatus: widget.vehicleList.outerState!,
+          customerMobile: widget.pickupContactPhone,
+          toAddress: widget.toAddress,
+          toLat: widget.toLatitude.toString(),
+          toLong: widget.toLongitude.toString(),
+          total: widget.vehicleList.totalPrice!,
+          transactionId: "xyzsdfasdf" + rand.nextInt(2000).toString(),
+          userId: ApiServices.userId!,
+          vehicleTypeId: widget.vehicleList.id!,
+          toMobile: widget.pickupContactPhone,
+          toName: widget.pickupContactName,
+          couponCode: "jdhf",
+          discountAmt: "34");
+      await context
+          .read<BookVehicleAPIProvider>()
+          .fetchData(bookVehicleRequestModel: bookVehicleRequestModel)
+          .then((value) {
+        // showAboutDialog(context: context)
+        Utils.bookingSuccess(context);
+        context.read<OrderHistoryAPIProvider>().getOrders();
+      });
+    } else if (widget.stop1Lat != null &&
+        widget.stop2Lat == null &&
+        widget.stop3Lat == null) {
+      final bookVehicleRequestModel = BookVehicleRequestModel(
+          paidAmt: "0",
+          rideTime: "12-07-2022",
+          timeState: "1",
+          vehicleCharge: widget.vehicleList.vehiclePrice!,
+          customerName: widget.pickupContactName,
+          distance: widget.vehicleList.totalKm!,
+          duration: widget.vehicleList.time!,
+          fromAddress: widget.fromAddress,
+          fromLat: widget.fromLat.toString(),
+          fromLong: widget.fromLong.toString(),
+          labourQuantity: widget.vehicleList.labour!,
+          labourPrice: widget.vehicleList.labourTotal!,
+          categoryId: categoryId,
+          categoryQuantity: categoryQuantity,
+          gst: widget.vehicleList.gst!,
+          statePrice: widget.vehicleList.outerCharge!,
+          stateStatus: widget.vehicleList.outerState!,
+          customerMobile: widget.pickupContactPhone,
+          toAddress: "₹${widget.stop1Address}₹${widget.toAddress}",
+          toLat: "₹${widget.stop1Lat}₹${widget.toLatitude}".toString(),
+          toLong: "₹${widget.stop1Long}₹${widget.toLongitude}".toString(),
+          total: widget.vehicleList.totalPrice!,
+          transactionId: "xyzsdfasdf" + rand.nextInt(2000).toString(),
+          userId: ApiServices.userId!,
+          vehicleTypeId: widget.vehicleList.id!,
+          toName: "₹${widget.pickupContactName}₹${widget.pickupContactName}",
+          toMobile:
+              "₹${widget.pickupContactPhone}₹${widget.pickupContactPhone}",
+          couponCode: "jdhf",
+          discountAmt: "34");
+      await context
+          .read<BookVehicleAPIProvider>()
+          .fetchData(bookVehicleRequestModel: bookVehicleRequestModel)
+          .then((value) {
+        // showAboutDialog(context: context)
+        Utils.bookingSuccess(context);
+        context.read<OrderHistoryAPIProvider>().getOrders();
+      });
+    } else if (widget.stop1Lat != null &&
+        widget.stop2Lat != null &&
+        widget.stop3Lat != null &&
+        widget.toLatitude != null) {
+      final bookVehicleRequestModel = BookVehicleRequestModel(
+          paidAmt: "0",
+          rideTime: "12-07-2022",
+          timeState: "1",
+          vehicleCharge: widget.vehicleList.vehiclePrice!,
+          customerName: widget.pickupContactName,
+          toName:
+              "₹${widget.pickupContactName}₹${widget.pickupContactName}₹${widget.pickupContactName}",
+          distance: widget.vehicleList.totalKm!,
+          duration: widget.vehicleList.time!,
+          fromAddress: widget.fromAddress,
+          fromLat: widget.fromLat.toString(),
+          fromLong: widget.fromLong.toString(),
+          labourQuantity: widget.vehicleList.labour!,
+          labourPrice: widget.vehicleList.labourTotal!,
+          categoryId: categoryId,
+          categoryQuantity: categoryQuantity,
+          gst: widget.vehicleList.gst!,
+          statePrice: widget.vehicleList.outerCharge!,
+          stateStatus: widget.vehicleList.outerState!,
+          customerMobile: widget.pickupContactPhone,
+          toMobile:
+              "₹${widget.pickupContactPhone}₹${widget.pickupContactPhone}₹${widget.pickupContactPhone}",
+          toAddress:
+              "₹${widget.stop1Address}₹${widget.stop2Address}₹${widget.toAddress}",
+          toLat: "₹${widget.stop1Lat}₹${widget.stop2Lat}₹${widget.toLatitude}"
+              .toString(),
+          toLong:
+              "₹${widget.stop1Long}₹${widget.stop2Long}₹${widget.toLongitude}"
+                  .toString(),
+          total: widget.vehicleList.totalPrice!,
+          transactionId: "xyzsdfasdf" + rand.nextInt(2000).toString(),
+          userId: ApiServices.userId!,
+          vehicleTypeId: widget.vehicleList.id!,
+          couponCode: "jdhf",
+          discountAmt: "34");
+      await context
+          .read<BookVehicleAPIProvider>()
+          .fetchData(bookVehicleRequestModel: bookVehicleRequestModel)
+          .then((value) {
+        // showAboutDialog(context: context)
+        Utils.bookingSuccess(context);
+        context.read<OrderHistoryAPIProvider>().getOrders();
+      });
+    } else if (widget.stop1Lat != null &&
+        widget.stop2Lat != null &&
+        widget.stop3Lat == null) {
+      final bookVehicleRequestModel = BookVehicleRequestModel(
+          paidAmt: "0",
+          rideTime: "12-07-2022",
+          timeState: "1",
+          vehicleCharge: widget.vehicleList.vehiclePrice!,
+          customerName: widget.pickupContactName,
+          toName:
+              "₹${widget.pickupContactName}₹${widget.pickupContactName}₹${widget.pickupContactName}₹${widget.pickupContactName}",
+          distance: widget.vehicleList.totalKm!,
+          duration: widget.vehicleList.time!,
+          fromAddress: widget.fromAddress,
+          fromLat: widget.fromLat.toString(),
+          fromLong: widget.fromLong.toString(),
+          labourQuantity: widget.vehicleList.labour!,
+          labourPrice: widget.vehicleList.labourTotal!,
+          categoryId: categoryId,
+          categoryQuantity: categoryQuantity,
+          gst: widget.vehicleList.gst!,
+          statePrice: widget.vehicleList.outerCharge!,
+          stateStatus: widget.vehicleList.outerState!,
+          customerMobile: widget.pickupContactPhone,
+          toMobile:
+              "₹${widget.pickupContactPhone}₹${widget.pickupContactPhone}₹${widget.pickupContactPhone}₹${widget.pickupContactPhone}",
+          toAddress:
+              "₹${widget.stop1Address}₹${widget.stop2Address}₹${widget.stop3Address}₹${widget.toAddress}",
+          toLat:
+              "₹${widget.stop1Lat}₹${widget.stop2Lat}₹${widget.stop3Lat}₹${widget.toLatitude}"
+                  .toString(),
+          toLong:
+              "₹${widget.stop1Long}₹${widget.stop2Long}₹${widget.stop3Long}₹${widget.toLongitude}"
+                  .toString(),
+          total: widget.vehicleList.totalPrice!,
+          transactionId: "xyzsdfasdf" + rand.nextInt(2000).toString(),
+          userId: ApiServices.userId!,
+          vehicleTypeId: widget.vehicleList.id!,
+          couponCode: "jdhf",
+          discountAmt: "34");
+      await context
+          .read<BookVehicleAPIProvider>()
+          .fetchData(bookVehicleRequestModel: bookVehicleRequestModel)
+          .then((value) {
+        // showAboutDialog(context: context)
+        Utils.bookingSuccess(context);
+        context.read<OrderHistoryAPIProvider>().getOrders();
+      });
+    }
     //  openCheckout().whenComplete(() async {
-    final bookVehicleRequestModel = BookVehicleRequestModel(
-        paidAmt: "0",
-        rideTime: "12-07-2022",
-        timeState: "1",
-        vehicleCharge: widget.vehicleList.vehiclePrice!,
-        customerName: widget.pickupContactName,
-        distance: widget.vehicleList.totalKm!,
-        duration: widget.vehicleList.time!,
-        fromAddress: SharedPreference.address!,
-        fromLat: SharedPreference.latitude!.toString(),
-        fromLong: SharedPreference.longitude!.toString(),
-        labourQuantity: widget.vehicleList.labour!,
-        labourPrice: widget.vehicleList.labourTotal!,
-        categoryId: categoryId,
-        categoryQuantity: categoryQuantity,
-        gst: widget.vehicleList.gst!,
-        statePrice: widget.vehicleList.outerCharge!,
-        stateStatus: widget.vehicleList.outerState!,
-        customerMobile: widget.pickupContactPhone,
-        toAddress: widget.toAddress,
-        toLat: widget.toLatitude.toString(),
-        toLong: widget.toLongitude.toString(),
-        total: widget.vehicleList.totalPrice!,
-        transactionId: "xyzsdfasdf" + rand.nextInt(2000).toString(),
-        userId: ApiServices.userId!,
-        vehicleTypeId: widget.vehicleList.id!);
-    await context
-        .read<BookVehicleAPIProvider>()
-        .fetchData(bookVehicleRequestModel: bookVehicleRequestModel)
-        .then((value) {
-      // showAboutDialog(context: context)
-      Utils.bookingSuccess(context);
-      context.read<OrderHistoryAPIProvider>().getOrders();
-    });
+
     //  });
   }
 
@@ -3978,23 +4169,28 @@ class _Verify30PercentPaymentState extends State<Verify30PercentPayment>
                           context: context, text: "Vehicle not Booking...");*/
                     },
                     child: Center(
-                      child: Row(
-                        children: [
-                          Text(
-                            /*widget.type == "2"
-                                ?*/
-                            //  "/*Make Payment of ₹ ${getPriceFromPercentage(vehicleCategoriesAPIProvider.vehicleCategoriesResponseModel!.vehicleList![widget.vehicleSelectedIndex].totalPrice!, 30).toStringAsFixed(2)}"*/
-                            // : "Confirm Booking",
-                            "Online",
+                      child: InkWell(
+                        onTap: () {
+                          makePayment();
+                        },
+                        child: Row(
+                          children: [
+                            Text(
+                              /*widget.type == "2"
+                                  ?*/
+                              //  "/*Make Payment of ₹ ${getPriceFromPercentage(vehicleCategoriesAPIProvider.vehicleCategoriesResponseModel!.vehicleList![widget.vehicleSelectedIndex].totalPrice!, 30).toStringAsFixed(2)}"*/
+                              // : "Confirm Booking",
+                              "Online",
 
-                            style: CommonStyles.whiteText12BoldW500(),
-                          ),
-                          Icon(
-                            Icons.paypal,
-                            color: Colors.white,
-                            size: 20,
-                          )
-                        ],
+                              style: CommonStyles.whiteText12BoldW500(),
+                            ),
+                            Icon(
+                              Icons.paypal,
+                              color: Colors.white,
+                              size: 20,
+                            )
+                          ],
+                        ),
                       ),
                     )),
               ],
@@ -4017,6 +4213,41 @@ class _Verify30PercentPaymentState extends State<Verify30PercentPayment>
     //     body:
 
     //     );
+  }
+
+  makePayment() {
+    //Replace with actual values
+    String orderId = "ORDER_ID";
+    String stage = "PROD";
+    String orderAmount = "ORDER_AMOUNT";
+    String tokenData = "TOKEN_DATA";
+    String customerName = "Customer Name";
+    String orderNote = "Order_Note";
+    String orderCurrency = "INR";
+    String appId = "APP_ID";
+    String customerPhone = "Customer Phone";
+    String customerEmail = "sample@gmail.com";
+    String notifyUrl = "https://test.gocashfree.com/notify";
+
+    Map<String, dynamic> inputParams = {
+      "orderId": orderId,
+      "orderAmount": orderAmount,
+      "customerName": customerName,
+      "orderNote": orderNote,
+      "orderCurrency": orderCurrency,
+      "appId": appId,
+      "customerPhone": customerPhone,
+      "customerEmail": customerEmail,
+      "stage": stage,
+      "tokenData": tokenData,
+      "notifyUrl": notifyUrl
+    };
+
+    CashfreePGSDK.doPayment(inputParams)
+        .then((value) => value?.forEach((key, value) {
+              print("$key : $value");
+              //Do something with the result
+            }));
   }
 
   double getPriceFromPercentage(String price, int percentage) {

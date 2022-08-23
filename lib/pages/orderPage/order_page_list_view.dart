@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:new_ank_customer/Services/apiProvider/coupon_api_provider.dart';
 import 'package:new_ank_customer/Services/apiProvider/order_history_api_provider.dart';
+import 'package:new_ank_customer/Services/apiProvider/registration_api_provider.dart';
 import 'package:new_ank_customer/Services/api_services.dart';
 import 'package:new_ank_customer/common/loading_widget.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
@@ -74,6 +76,7 @@ class _OrderPageListViewState extends State<OrderPageListView> {
         });
       });
     }
+
     super.initState();
   }
 
@@ -110,7 +113,7 @@ class _OrderPageListViewState extends State<OrderPageListView> {
                 children: [
                   Row(
                     children: [
-                      if (orderHistoryAPIProvider
+                      /*     if (orderHistoryAPIProvider
                           .orderHistoryResponse!
                           .orderHistory![index]
                           .vechileDetails!
@@ -133,7 +136,7 @@ class _OrderPageListViewState extends State<OrderPageListView> {
                                     .vechileDetails!
                                     .image!,
                           ),
-                        ),
+                        ),*/
                       Utils.getSizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,8 +146,7 @@ class _OrderPageListViewState extends State<OrderPageListView> {
                                   .orderHistory![index].bookedDate!,
                               style: CommonStyles.black12()),
                           Text(
-                            orderHistoryAPIProvider.orderHistoryResponse!
-                                .orderHistory![index].vechileDetails!.wheeler!,
+                            "Order ID  : 0000010${orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![index].id!}",
                             style: CommonStyles.black12(),
                           )
                         ],
@@ -159,44 +161,64 @@ class _OrderPageListViewState extends State<OrderPageListView> {
                   )
                 ],
               ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15.0, horizontal: 20.0),
-                    child: Container(
-                        color: Colors.white,
-                        child: ListView.builder(
-                            itemCount: list.length,
-                            shrinkWrap: true,
-                            primary: false,
-                            itemBuilder: (con, ind) {
-                              return ind != 0
-                                  ? Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                          Row(children: [
-                                            Column(
-                                              children: List.generate(
-                                                2,
-                                                (ii) => Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 9,
-                                                            right: 10,
-                                                            top: 5,
-                                                            bottom: 5),
-                                                    child: Container(
-                                                      height: 3,
-                                                      width: 2,
-                                                      color: Colors.grey,
-                                                    )),
-                                              ),
-                                            ),
-                                          ]),
-                                          Row(children: [
+                  Expanded(
+                    flex: 10,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 15.0, horizontal: 0.0),
+                          child: Container(
+                              child: ListView.builder(
+                                  itemCount: list.length,
+                                  shrinkWrap: true,
+                                  primary: false,
+                                  itemBuilder: (con, ind) {
+                                    return ind != 0
+                                        ? Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                                Row(children: [
+                                                  Column(
+                                                    children: List.generate(
+                                                      2,
+                                                      (ii) => Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 9,
+                                                                  right: 10,
+                                                                  top: 5,
+                                                                  bottom: 5),
+                                                          child: Container(
+                                                            height: 3,
+                                                            width: 2,
+                                                            color: Colors.grey,
+                                                          )),
+                                                    ),
+                                                  ),
+                                                ]),
+                                                Row(children: [
+                                                  Icon(
+                                                    Icons.location_on,
+                                                    color: list[ind].color,
+                                                    size: 20,
+                                                  ),
+                                                  Utils.getSizedBox(width: 10),
+                                                  Flexible(
+                                                    child: Text(
+                                                        list[ind].address,
+                                                        maxLines: 3,
+                                                        style: CommonStyles
+                                                            .red9()),
+                                                  )
+                                                ]),
+                                              ])
+                                        : Row(children: [
                                             Icon(
                                               Icons.location_on,
                                               color: list[ind].color,
@@ -206,25 +228,32 @@ class _OrderPageListViewState extends State<OrderPageListView> {
                                             Flexible(
                                               child: Text(list[ind].address,
                                                   maxLines: 3,
-                                                  style: CommonStyles.red9()),
+                                                  style: CommonStyles.green9()),
                                             )
-                                          ]),
-                                        ])
-                                  : Row(children: [
-                                      Icon(
-                                        Icons.location_on,
-                                        color: list[ind].color,
-                                        size: 20,
-                                      ),
-                                      Utils.getSizedBox(width: 10),
-                                      Flexible(
-                                        child: Text(list[ind].address,
-                                            maxLines: 3,
-                                            style: CommonStyles.green9()),
-                                      )
-                                    ]);
-                            })),
+                                          ]);
+                                  })),
+                        ),
+                      ],
+                    ),
                   ),
+                  Expanded(
+                      flex: 2,
+                      child: Column(
+                        children: [
+                          if (orderHistoryAPIProvider.orderHistoryResponse!
+                                  .orderHistory![index].orderStatus ==
+                              "2")
+                            Container(
+                              margin: EdgeInsets.only(left: 5),
+                              height: 50,
+                              child: Image.asset("assets/images/cancel.png"),
+                            ),
+                          /*  CachedNetworkImage(
+                              imageUrl:
+                                  "${orderHistoryAPIProvider.orderHistoryResponse!.vehicleBaseurl}${orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![index].driverDetails!.profileImage}"),
+                       */
+                        ],
+                      )),
                 ],
               ),
               Utils.getSizedBox(height: 5),
@@ -236,7 +265,10 @@ class _OrderPageListViewState extends State<OrderPageListView> {
                           "1" &&
                       orderHistoryAPIProvider.orderHistoryResponse!
                               .orderHistory![index].orderStatus !=
-                          "2")
+                          "2" &&
+                      orderHistoryAPIProvider.orderHistoryResponse!
+                              .orderHistory![index].orderStatus !=
+                          "3")
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -251,35 +283,38 @@ class _OrderPageListViewState extends State<OrderPageListView> {
                             style: CommonStyles.black13thin()),
                       ],
                     ),
-                  InkWell(
-                    onTap: () {
-                      showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(8),
-                                  topRight: Radius.circular(8))),
-                          builder: (context) {
-                            return ShowDetailedTransaction(index: index);
-                          });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.only(
-                        bottom: 2, // Space between underline and text
+                  if (orderHistoryAPIProvider.orderHistoryResponse!
+                          .orderHistory![index].orderStatus !=
+                      "2")
+                    InkWell(
+                      onTap: () {
+                        showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(8),
+                                    topRight: Radius.circular(8))),
+                            builder: (context) {
+                              return ShowDetailedTransaction(index: index);
+                            });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                          bottom: 2, // Space between underline and text
+                        ),
+                        decoration: const BoxDecoration(
+                            border: Border(
+                                bottom: BorderSide(
+                          color: Colors.blue,
+                          width: 1.0, // Underline thickness
+                        ))),
+                        child: Text(
+                          "View Details",
+                          style: CommonStyles.blue12(),
+                        ),
                       ),
-                      decoration: const BoxDecoration(
-                          border: Border(
-                              bottom: BorderSide(
-                        color: Colors.blue,
-                        width: 1.0, // Underline thickness
-                      ))),
-                      child: Text(
-                        "View Details",
-                        style: CommonStyles.blue12(),
-                      ),
-                    ),
-                  )
+                    )
                 ],
               ),
               Utils.getSizedBox(height: 10),
@@ -289,41 +324,44 @@ class _OrderPageListViewState extends State<OrderPageListView> {
                       "1",
                   child: const LinearProgressIndicator()),
               Utils.getSizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Status : ",
-                        style: CommonStyles.black1154(),
-                      ),
-                      Utils.getSizedBox(width: 5),
-                      getIconAccordingToStatus(orderHistoryAPIProvider
-                          .orderHistoryResponse!
-                          .orderHistory![index]
-                          .orderStatus!),
-                      Utils.getSizedBox(width: 5),
-                      Text(
-                          orderHistoryAPIProvider.orderHistoryResponse!
-                              .orderHistory![index].orderLabel!,
-                          style: CommonStyles.black10thin()),
-                      Utils.getSizedBox(width: 5),
-                    ],
-                  ),
+              if (orderHistoryAPIProvider.orderHistoryResponse!
+                      .orderHistory![widget.index].orderStatus !=
+                  "2")
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Status : ",
+                          style: CommonStyles.black1154(),
+                        ),
+                        Utils.getSizedBox(width: 5),
+                        getIconAccordingToStatus(orderHistoryAPIProvider
+                            .orderHistoryResponse!
+                            .orderHistory![index]
+                            .orderStatus!),
+                        Utils.getSizedBox(width: 5),
+                        Text(
+                            orderHistoryAPIProvider.orderHistoryResponse!
+                                .orderHistory![index].orderLabel!,
+                            style: CommonStyles.black10thin()),
+                        Utils.getSizedBox(width: 5),
+                      ],
+                    ),
 
-                  // Text(
-                  //   "₹ " +
-                  //       orderHistoryAPIProvider
-                  //           .orderHistoryResponse!
-                  //           .orderHistory![index]
-                  //           .tripDetails!
-                  //           .payedAmt!,
-                  //   style: CommonStyles.black12(),
-                  // )
-                ],
-              ),
+                    // Text(
+                    //   "₹ " +
+                    //       orderHistoryAPIProvider
+                    //           .orderHistoryResponse!
+                    //           .orderHistory![index]
+                    //           .tripDetails!
+                    //           .payedAmt!,
+                    //   style: CommonStyles.black12(),
+                    // )
+                  ],
+                ),
               Visibility(
                 visible: orderHistoryAPIProvider.orderHistoryResponse!
                             .orderHistory![index].orderLabel! ==
@@ -570,14 +608,14 @@ class _OrderPageListViewState extends State<OrderPageListView> {
             ],
           ),*/
           Padding(
-            padding: const EdgeInsets.only(left: 15.0),
+            padding: const EdgeInsets.only(left: 8.0),
             child: Row(
               children: [
                 const Icon(Icons.info, color: Colors.black54),
                 Utils.getSizedBox(width: 10),
                 Text(
-                  "Are you sure you want to cancel the Booking ?",
-                  style: CommonStyles.black14(),
+                  "Are you sure you want to cancel the Booking?",
+                  // style: CommonStyles.black14(),
                 ),
               ],
             ),
@@ -638,9 +676,10 @@ class _OrderPageListViewState extends State<OrderPageListView> {
                       onPressed: () async {
                         showLoading(context);
                         final result = await apiServices.cancelOrder(
-                          orderId: orderHistoryAPIProvider
-                              .orderHistoryResponse!.orderHistory![index].id!,
-                        );
+                            orderId: orderHistoryAPIProvider
+                                .orderHistoryResponse!.orderHistory![index].id!,
+                            reasonID: "2",
+                            reasonText: "");
                         if (result!.status == "1") {
                           Fluttertoast.showToast(msg: "Order Cancelled");
                           await orderHistoryAPIProvider.getOrders();
@@ -709,6 +748,9 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
     //     context.read<OrderHistoryAPIProvider>().getOrders();
     //   });
     // }
+    if (context.read<CouponAPIProvider>().couponModel == null) {
+      context.read<CouponAPIProvider>().getCouponList();
+    }
     super.initState();
   }
 
@@ -716,6 +758,7 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
   Widget build(BuildContext context) {
     final orderHistoryAPIProvider =
         Provider.of<OrderHistoryAPIProvider>(context);
+    final couponAPI = Provider.of<CouponAPIProvider>(context);
 
     if (orderHistoryAPIProvider.ifLoading) {
       return SizedBox(
@@ -751,6 +794,31 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            color: Colors.white,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        icon: Icon(Icons.arrow_back)),
+                    Text(
+                      "Trip Details",
+                      style: CommonStyles.black15(),
+                    ),
+                  ],
+                ),
+                Text(
+                  "Order ID  : 0000010${orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].id!}",
+                  style: CommonStyles.black12(),
+                )
+              ],
+            ),
+          ),
           orderHistoryAPIProvider.orderHistoryResponse!
                       .orderHistory![widget.index].orderStatus ==
                   "1"
@@ -795,7 +863,7 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                             ],
                           )))
                   : SizedBox(
-                      height: 400,
+                      height: 250,
                       width: deviceWidth(context),
                       child: MapPage(orderId: widget.index
                           // sourceLocation: LatLng(
@@ -823,19 +891,6 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                           ),
                     ),
 
-          Align(
-            alignment: Alignment.topRight,
-            child: IconButton(
-              icon: const Icon(
-                Icons.close,
-                size: 18,
-                color: Colors.brown,
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ),
           // Row(
           //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
           //                     children: [
@@ -887,13 +942,40 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                       ],
                     ),
                     Text(
-                      "₹ " +
-                          orderHistoryAPIProvider.orderHistoryResponse!
-                              .orderHistory![widget.index].tripDetails!.total!,
-                      style: CommonStyles.blue12(),
-                    ),
+                      "₹ ${orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.total!}",
+                      style: CommonStyles.black15(),
+                    )
                   ],
                 ),
+                Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Icon(
+                      Icons.speed_sharp,
+                      color: Colors.black54,
+                      size: 40,
+                    ),
+                    Text(
+                      "₹  " +
+                          orderHistoryAPIProvider
+                              .orderHistoryResponse!
+                              .orderHistory![widget.index]
+                              .tripDetails!
+                              .vehicleCharge!,
+                      style: CommonStyles.black15(),
+                    ),
+                    Text(
+                      "${orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.totalDistance!}",
+                      style: CommonStyles.black15(),
+                    ),
+                    Text(
+                      "${orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.totalDuration}",
+                      style: CommonStyles.black15(),
+                    )
+                  ],
+                ),
+                Divider(),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -950,8 +1032,8 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                                               Flexible(
                                                 child: Text(list[ind].address,
                                                     maxLines: 3,
-                                                    style:
-                                                        CommonStyles.red12()),
+                                                    style: CommonStyles
+                                                        .black13thinW54()),
                                               )
                                             ]),
                                           ])
@@ -965,13 +1047,15 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                                         Flexible(
                                           child: Text(list[ind].address,
                                               maxLines: 3,
-                                              style: CommonStyles.green12()),
+                                              style: CommonStyles
+                                                  .black13thinW54()),
                                         )
                                       ]);
                               })),
                     ),
                   ],
                 ),
+
                 /*    Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1022,7 +1106,7 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                     )
                   ],
                 ),*/
-                Utils.getSizedBox(height: 10),
+                Divider(),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -1043,20 +1127,78 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                               orderHistoryAPIProvider.orderHistoryResponse!
                                   .orderHistory![widget.index].orderLabel!,
                               style: CommonStyles.black11()),
-                          // Text(
-                          //   "₹ " +
-                          //       orderHistoryAPIProvider
-                          //           .orderHistoryResponse!
-                          //           .orderHistory![index]
-                          //           .tripDetails!
-                          //           .payedAmt!,
-                          //   style: CommonStyles.black12(),
-                          // )
+                          /* Text(
+                            "₹ " +
+                                orderHistoryAPIProvider
+                                    .orderHistoryResponse!
+                                    .orderHistory![widget.index]
+                                    .tripDetails!
+                                    .tripOtp!,
+                            style: CommonStyles.black12(),
+                          )*/
                         ],
                       ),
                     ]),
                 Utils.getSizedBox(height: 10),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Bill Details",
+                    style: CommonStyles.black15(),
+                  ),
+                ),
                 showBillScreen(),
+                Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              if (discount == "0") {
+                                buildShowModalBottomSheet(context, couponAPI,
+                                    orderHistoryAPIProvider);
+                              } else {
+                                null;
+                              }
+                            },
+                            icon: Icon(
+                              Icons.local_offer_outlined,
+                              color: orderHistoryAPIProvider
+                                          .orderHistoryResponse!
+                                          .orderHistory![widget.index]
+                                          .tripDetails!
+                                          .status !=
+                                      "3"
+                                  ? Colors.black
+                                  : Colors.grey,
+                            )),
+                        Text(
+                          "Use Coupon".toUpperCase(),
+                          style: CommonStyles.black12reg(),
+                        )
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              setState(() {
+                                assignEmail();
+                                showAlertDialog(context);
+                              });
+                            },
+                            icon: Icon(Icons.mail_outline)),
+                        Text(
+                          "Mail Invoice".toUpperCase(),
+                          style: CommonStyles.black12reg(),
+                        )
+                      ],
+                    ),
+                  ],
+                )
+
                 /* Utils.getSizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -1069,6 +1211,278 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
       ),
     );
     // });
+  }
+
+  Future<dynamic> buildShowModalBottomSheet(
+      BuildContext context,
+      CouponAPIProvider couponAPI,
+      OrderHistoryAPIProvider orderHistoryAPIProvider) {
+    return showModalBottomSheet(
+        context: context,
+        builder: (builder) {
+          return Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              height: 600.0,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Available Promos".toUpperCase(),
+                    style: CommonStyles.blue18900(),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20.0)),
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20.0)),
+                                borderSide: BorderSide(color: Colors.grey),
+                              )),
+                        ),
+                      ),
+                      Expanded(
+                          child: TextButton(
+                        onPressed: () {},
+                        child: Text("Apply", style: CommonStyles.black14()),
+                      ))
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  couponAPI.ifLoading
+                      ? Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 0.5,
+                          ),
+                        )
+                      : Expanded(
+                          child: ListView.builder(
+                            scrollDirection: Axis.vertical,
+                            primary: true,
+                            physics: BouncingScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount:
+                                couponAPI.couponModel!.couponList!.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(10)),
+                                margin: EdgeInsets.only(bottom: 10),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      height: 160,
+                                      width: MediaQuery.of(context).size.width,
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 20),
+                                      decoration: BoxDecoration(
+                                          color: Colors.blue,
+                                          borderRadius:
+                                              BorderRadius.circular(15)),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            couponAPI.couponModel!
+                                                .couponList![index].couponName!,
+                                            style: CommonStyles
+                                                .whiteText16BoldW500(),
+                                          ),
+                                          Text(
+                                            "${couponAPI.couponModel!.couponList![index].offer} %  OFF",
+                                            style: CommonStyles
+                                                .whiteText18BoldW500(),
+                                          ),
+                                          Text(
+                                            "UPTO  ₹ ${couponAPI.couponModel!.couponList![index].upto} ",
+                                            style: CommonStyles
+                                                .whiteText20BoldW500(),
+                                          ),
+                                          Text(
+                                            "${couponAPI.couponModel!.couponList![index].description}  ",
+                                            style: CommonStyles
+                                                .whiteText16BoldW500(),
+                                          ),
+                                          Text(
+                                            "Valid Till ${couponAPI.couponModel!.couponList![index].validDate} ",
+                                            style: CommonStyles
+                                                .whiteText16BoldW500(),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "Coupon ${couponAPI.couponModel!.couponList![index].couponName}  ${couponAPI.couponModel!.couponList![index].upto}",
+                                              style: CommonStyles.black13(),
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Text(
+                                              "Coupon ${couponAPI.couponModel!.couponList![index].offer} % Off  Upto ₹ ${couponAPI.couponModel!.couponList![index].upto}",
+                                              style: CommonStyles.black13(),
+                                            ),
+                                          ],
+                                        ),
+                                        ElevatedButton(
+                                            onPressed: () {
+                                              discount =
+                                                  "${((double.parse(orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.total!) - double.parse(couponAPI.couponModel!.couponList![index].upto!)))}";
+
+                                              print("discont -----" +
+                                                  discount.toString());
+
+                                              if (discount != "0") {
+                                                saveMoney = couponAPI
+                                                    .couponModel!
+                                                    .couponList![index]
+                                                    .upto;
+
+                                                Fluttertoast.showToast(
+                                                    msg:
+                                                        "Promo Code Applied Successfully  !!");
+                                              } else {
+                                                Fluttertoast.showToast(
+                                                    msg:
+                                                        "Promo Code is not Valid!!");
+                                              }
+                                            },
+                                            child: Text(
+                                              "APPLY",
+                                              style: CommonStyles.black13(),
+                                            ))
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        )
+                ],
+              ));
+        });
+  }
+
+  String discount = "0";
+  String? saveMoney;
+
+  final emailController = TextEditingController();
+
+  assignEmail() {
+    emailController.text = context
+        .read<ProfileViewAPIProvider>()
+        .profileViewResponse!
+        .userDetails!
+        .email
+        .toString();
+    print("email Controller ---------" + emailController.text);
+  }
+
+  showAlertDialog(BuildContext context) {
+    // set up the buttons
+    Widget cancelButton = ElevatedButton(
+      style: ElevatedButton.styleFrom(primary: Colors.black),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 30),
+        child: Text(
+          "Cancel".toUpperCase(),
+          style: CommonStyles.whiteText15BoldW500(),
+        ),
+      ),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget continueButton = ElevatedButton(
+      style: ElevatedButton.styleFrom(primary: Colors.black),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 30),
+        child: Text(
+          "Send".toUpperCase(),
+          style: CommonStyles.whiteText15BoldW500(),
+        ),
+      ),
+      onPressed: () {},
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(
+        "Enter Mail Address ",
+        style: CommonStyles.black12reg(),
+      ),
+      content: TextFormField(
+        style: CommonStyles.black14(),
+        controller: emailController,
+        keyboardType: TextInputType.emailAddress,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (value) {
+          String pattern =
+              r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+          RegExp regex = RegExp(pattern);
+          if (!regex.hasMatch(value!)) {
+            return "Enter Valid email";
+          }
+          return null;
+        },
+        decoration: InputDecoration(
+            //   errorText: "Enter E-Mail ID",
+            /*hintText: context
+              .read<ProfileViewAPIProvider>()
+              .profileViewResponse!
+              .userDetails!
+              .email!,*/
+            ),
+      ),
+      actions: [
+        cancelButton,
+        SizedBox(
+          width: 0,
+        ),
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+            margin: EdgeInsets.symmetric(horizontal: 0), child: alert);
+      },
+    );
   }
 
   Widget getIconAccordingToStatus(status) {
@@ -1148,24 +1562,21 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
           children: [
             Text(
               "Vehicle Charges",
-              style: CommonStyles.black11(),
+              style: CommonStyles.black12reg(),
             ),
             Text(
               "₹ " +
                   orderHistoryAPIProvider.orderHistoryResponse!
                       .orderHistory![widget.index].tripDetails!.vehicleCharge!,
-              style: CommonStyles.blue12thin(),
+              style: CommonStyles.black14thinW54(),
             ),
           ],
         ),
         Utils.getSizedBox(height: 10),
         Visibility(
           visible: orderHistoryAPIProvider.orderHistoryResponse!
-                      .orderHistory![widget.index].tripDetails!.labourQty !=
-                  "0" ||
-              orderHistoryAPIProvider.orderHistoryResponse!
-                      .orderHistory![widget.index].tripDetails!.labourQty !=
-                  null,
+                  .orderHistory![widget.index].tripDetails!.labourPrice !=
+              "0",
           child: Column(
             children: [
               Row(
@@ -1173,7 +1584,7 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                 children: [
                   Text(
                     "Helper Charges (${orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.labourQty} Helpers)",
-                    style: CommonStyles.black11(),
+                    style: CommonStyles.black12reg(),
                   ),
                   Text(
                     "₹ " +
@@ -1182,7 +1593,7 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                             .orderHistory![widget.index]
                             .tripDetails!
                             .labourPrice!,
-                    style: CommonStyles.blue12thin(),
+                    style: CommonStyles.black14thinW54(),
                   ),
                 ],
               ),
@@ -1201,7 +1612,7 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                 children: [
                   Text(
                     "Outstation Charges",
-                    style: CommonStyles.black11(),
+                    style: CommonStyles.black12reg(),
                   ),
                   Text(
                     "₹ " +
@@ -1210,7 +1621,7 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                             .orderHistory![widget.index]
                             .tripDetails!
                             .statePrice!,
-                    style: CommonStyles.blue12thin(),
+                    style: CommonStyles.black14thinW54(),
                   ),
                 ],
               ),
@@ -1224,7 +1635,7 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
           children: [
             Text(
               "GST Amount ",
-              style: CommonStyles.black11(),
+              style: CommonStyles.black12reg(),
             ),
             Text(
               "₹ " +
@@ -1247,7 +1658,7 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                                   .tripDetails!
                                   .labourPrice!))
                           .toString()),
-              style: CommonStyles.blue12thin(),
+              style: CommonStyles.black14thinW54(),
             ),
           ],
         ),
@@ -1274,7 +1685,7 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
         // ),
         // Utils.getSizedBox(height: 10),
         // buildDivider(),
-        Utils.getSizedBox(height: 10),
+        /*Utils.getSizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -1287,19 +1698,35 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
         ),
         Utils.getSizedBox(height: 10),
 
-        buildDivider(),
+        buildDivider(),*/
         Utils.getSizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text("Total Amount", style: CommonStyles.black12()),
-            Text(
-                "₹ "
-                "${orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.total!}",
-                style: CommonStyles.blue12())
+            Text("Total Amount", style: CommonStyles.black12reg()),
+            discount == "0"
+                ? Text(
+                    "₹ "
+                    "${orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.total!}",
+                    style: CommonStyles.black14thinW54())
+                : Text("₹ ${discount}", style: CommonStyles.black14thinW54())
           ],
         ),
 
+        if (discount != "0")
+          Column(
+            children: [
+              Utils.getSizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Saved Money", style: CommonStyles.black12reg()),
+                  Text("₹ ${saveMoney}", style: CommonStyles.black14thinW54())
+                ],
+              ),
+            ],
+          ),
+
         Utils.getSizedBox(height: 10),
 
         buildDivider(),
@@ -1307,11 +1734,16 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text("Amount To Pay", style: CommonStyles.black12()),
-            Text(
-                "₹ "
-                "${((double.parse(orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.total!) - double.parse(orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.paidAmt!)).toStringAsFixed(2))}",
-                style: CommonStyles.blue12())
+            Text("Amount To Pay", style: CommonStyles.black12reg()),
+            discount == "0"
+                ? Text(
+                    "₹ "
+                    "${((double.parse(orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.total!) - double.parse(orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.paidAmt!)).toStringAsFixed(2))}",
+                    style: CommonStyles.black14())
+                : Text(
+                    "₹ "
+                    "${((double.parse(orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.total!) - double.parse(orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].tripDetails!.paidAmt!) - double.parse(saveMoney!)).toStringAsFixed(2))}",
+                    style: CommonStyles.black14())
           ],
         ),
         Utils.getSizedBox(height: 10),

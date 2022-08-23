@@ -14,18 +14,21 @@ class VehicleCategoriesAPIProvider with ChangeNotifier {
   Future<void> fetchData(
       {required double fromLat,
       required double fromLong,
-      required double toLat,
-      required double toLong,
+      required String toLat,
+      required String toLong,
       required int labourQuantity}) async {
     final uri = Uri.parse("${baseURL}/index.php/Api_customer/get_vehicle_list");
     final response = await post(uri, body: {
       'from_lat': fromLat.toString(),
       'from_long': fromLong.toString(),
-      'to_lat': toLat.toString(),
-      'to_long': toLong.toString(),
+      'to_lat': toLat,
+      'to_long': toLong,
       'labour_qty': labourQuantity.toString(),
       'user_id': ApiServices.userId
     });
+
+    print("---------get Vechile List" + toLat);
+    print("---------get Vechile List" + toLong);
 
     print("----------- vehicle category response " +
         response.statusCode.toString());

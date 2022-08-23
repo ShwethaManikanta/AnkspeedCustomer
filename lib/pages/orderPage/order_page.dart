@@ -105,7 +105,7 @@ class _OrderPageState extends State<OrderPage> {
         Provider.of<OrderHistoryAPIProvider>(context);
 
     if (orderHistoryAPIProvider.ifLoading) {
-      print("LOading -----------  = = = == = = == = = = ");
+      print("Loading -----------  = = = == = = == = = = ");
       return SizedBox(
         child: Utils.getCenterLoading(),
         height: 400,

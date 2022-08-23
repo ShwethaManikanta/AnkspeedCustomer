@@ -15,6 +15,9 @@ class BookVehicleAPIProvider with ChangeNotifier {
     final uri = Uri.parse("${baseURL}/index.php/Api_customer/book_vehicle");
     final response = await post(uri, body: bookVehicleRequestModel.toMap());
 
+    print("-----------Book Vechile--------" +
+        bookVehicleRequestModel.toMap().toString());
+
     if (response.statusCode == 200) {
       try {
         final jsonResponse = jsonDecode(response.body);

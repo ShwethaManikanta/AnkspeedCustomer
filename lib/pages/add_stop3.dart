@@ -142,48 +142,87 @@ class _AddStop3State extends State<AddStop3> {
   }
 
   buildSearch() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      width: double.infinity,
-      child: Card(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-        elevation: 10,
-        child: Row(
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(5.0),
-              child: Icon(
-                Icons.search_rounded,
-                color: Colors.black54,
-              ),
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+          width: double.infinity,
+          child: Card(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0)),
+            elevation: 10,
+            child: Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(5.0),
+                  child: Icon(
+                    Icons.search_rounded,
+                    color: Colors.black54,
+                  ),
+                ),
+                Expanded(
+                  child: TextFormField(
+                    onChanged: (value) {
+                      if (value.isNotEmpty) {
+                        autoCompleteSearch(value);
+                      }
+                    },
+                    cursorColor: Colors.black,
+                    readOnly: false,
+                    controller: _autocompleteLocationController,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    style: CommonStyles.black13thin(),
+                    decoration: const InputDecoration(
+                        hintText: 'Search your area,street name.. ',
+                        isDense: false,
+                        contentPadding: EdgeInsets.only(
+                            top: 10, bottom: 10, left: 8, right: 8),
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none),
+                  ),
+                ),
+              ],
             ),
-            Expanded(
-              child: TextFormField(
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    autoCompleteSearch(value);
-                  }
-                },
-                cursorColor: Colors.black,
-                readOnly: false,
-                controller: _autocompleteLocationController,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                style: CommonStyles.black13thin(),
-                decoration: const InputDecoration(
-                    hintText: 'Search your area,street name.. ',
-                    isDense: false,
-                    contentPadding:
-                        EdgeInsets.only(top: 10, bottom: 10, left: 8, right: 8),
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    disabledBorder: InputBorder.none),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        TextButton(
+          onPressed: () {
+            Utils.showLoaderDialog(context);
+            Navigator.of(context).pop();
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => AddStop3Map(
+                      fromLat: widget.fromLat,
+                      fromLong: widget.fromLong,
+                      fromAddress: widget.pickupLoction!,
+                      toLat: widget.toLat,
+                      toLong: widget.toLong,
+                      stop1Lat: widget.stop1Lat,
+                      stop1Long: widget.stop1Long,
+                      stop2Lat: widget.stop2Lat,
+                      stop2Long: widget.stop2Long,
+                      dropAddress: widget.dropLocation.toString(),
+                      latitude: SharedPreference.latitude!,
+                      longitude: SharedPreference.longitude!,
+                      stp1Address: widget.stop1Location.toString(),
+                      stop2Address: widget.stop2Location.toString(),
+                    )));
+          },
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.my_location_outlined),
+              ),
+              Text(
+                "Use My Current Location",
+                style: CommonStyles.black13(),
+              )
+            ],
+          ),
+        )
+      ],
     );
   }
 

@@ -99,6 +99,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.1.1"
+  cashfree_pg:
+    dependency: "direct main"
+    description:
+      name: cashfree_pg
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.10+30"
   characters:
     dependency: transitive
     description:
@@ -1003,6 +1010,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.27.4"
+  screenshot:
+    dependency: "direct main"
+    description:
+      name: screenshot
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.3"
   share_plus:
     dependency: "direct main"
     description:

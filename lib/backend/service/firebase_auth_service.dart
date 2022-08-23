@@ -113,7 +113,7 @@ class FirebaseAuthService {
                 .then((value) {
               _userFromFirebase(value.user);
               print(
-                  "SIgn in wiht credentisl - - - - - - ---  - - -- - -  - success");
+                  "Sign in wiht credential - - - - - - ---  - - -- - -  - success");
               if (pushWidget != null) {
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) => pushWidget));

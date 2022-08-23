@@ -142,14 +142,14 @@ class ViewDetailsMapProvider with ChangeNotifier {
     sourcePinInfo = PinInformation(
         locationName: "Start Location",
         location: fromLatLng!,
-        pinPath: "assets/driving_pin.png",
+        pinPath: "assets/images/srtLoc.png",
         avatarPath: "assets/friend1.jpg",
         labelColor: Colors.blueAccent);
 
     destinationPinInfo = PinInformation(
         locationName: "End Location",
         location: toLatLng!,
-        pinPath: "assets/destination_map_marker.png",
+        pinPath: "assets/images/endLoc.png",
         avatarPath: "assets/friend2.jpg",
         labelColor: Colors.purple);
 
