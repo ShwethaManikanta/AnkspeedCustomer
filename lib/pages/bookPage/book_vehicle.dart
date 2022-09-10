@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
@@ -13,9 +14,11 @@ import 'package:new_ank_customer/Models/goods_type.dart';
 import 'package:new_ank_customer/Models/near_driver_list_model.dart';
 import 'package:new_ank_customer/Models/vehicle_categories_response_model.dart';
 import 'package:new_ank_customer/Services/apiProvider/book_vehicle_api_provider.dart';
+import 'package:new_ank_customer/Services/apiProvider/coupon_api_provider.dart';
 import 'package:new_ank_customer/Services/apiProvider/goods_types_api_provider.dart';
 import 'package:new_ank_customer/Services/apiProvider/helper_list_api_provider.dart';
 import 'package:new_ank_customer/Services/apiProvider/nearby_driver_api_provider.dart';
+import 'package:new_ank_customer/Services/apiProvider/promo_API.dart';
 import 'package:new_ank_customer/Services/apiProvider/unit_list_api_provider.dart';
 import 'package:new_ank_customer/Services/api_services.dart';
 import 'package:new_ank_customer/Services/location_services.dart/loaction_shared_preference.dart';
@@ -27,6 +30,7 @@ import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:new_ank_customer/pages/fetchLocation/fetch_location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:new_ank_customer/pages/goods_type_screen.dart';
+import 'package:paytm/paytm.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:screenshot/screenshot.dart';
@@ -36,7 +40,7 @@ import '../../Services/apiProvider/order_history_api_provider.dart';
 import '../../Services/apiProvider/vehicle_categories_api_provider.dart';
 import '../../common/clippers.dart';
 import '../../common/custom_divider.dart';
-import 'package:cashfree_pg/cashfree_pg.dart';
+import 'package:http/http.dart' as http;
 
 class BookVehiclePage extends StatefulWidget {
   const BookVehiclePage({
@@ -2172,6 +2176,7 @@ class _HelperDetailsBottomSheetState extends State<HelperDetailsBottomSheet> {
   Widget build(BuildContext context) {
     final vehicleCategoriesAPIProvider =
         Provider.of<VehicleCategoriesAPIProvider>(context);
+
     if (vehicleCategoriesAPIProvider.ifLoading) {
       return SizedBox(
         child: Utils.getCenterLoading(),
@@ -2493,7 +2498,7 @@ class _HelperDetailsBottomSheetState extends State<HelperDetailsBottomSheet> {
     );
   }
 
-  int _selectHelpers = 2;
+  int _selectHelpers = 1;
 
   String getMultipleLabourPrice(int pricePerHelper) {
     return (_selectHelpers * pricePerHelper).toString();
@@ -3700,7 +3705,7 @@ class _Verify30PercentPaymentState extends State<Verify30PercentPayment>
     "currency": "INR",
     "amount_paid": 0,
     "amount_due": 233.3,
-    'name': 'Close To Buy',
+    'name': '',
     'order_id': 'order_EMBFqjDHEEn80l', // Generate order_id using Orders API
     'description': 'Paneer Tikka with Extra Rice',
     'timeout': 60, // in seconds
@@ -3730,6 +3735,9 @@ class _Verify30PercentPaymentState extends State<Verify30PercentPayment>
 
   @override
   void initState() {
+    if (context.read<CouponAPIProvider>().couponModel == null) {
+      context.read<CouponAPIProvider>().getCouponList();
+    }
     _animationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 1));
 
@@ -3801,10 +3809,9 @@ class _Verify30PercentPaymentState extends State<Verify30PercentPayment>
   }
 
   bool _paymentCompleted = false;
+  String categoryId = "", categoryQuantity = "";
 
   buildPaymentFuture() async {
-    String categoryId = "", categoryQuantity = "";
-
     final goodTypeAPIProvider =
         Provider.of<ListGoodTypeAPIProvider>(context, listen: false);
 
@@ -4012,11 +4019,22 @@ class _Verify30PercentPaymentState extends State<Verify30PercentPayment>
   //     list.add(Model("Karnool", Colors.black));
   //   });
   // }
+  String discount = "0";
+  String? saveMoney;
+
+  String? itemTotal;
+  bool isLoading = true;
+
+  final couponTextEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final vehicleCategoriesAPIProvider =
         Provider.of<VehicleCategoriesAPIProvider>(context, listen: false);
+
+    final couponAPI = Provider.of<CouponAPIProvider>(context);
+    final promoPrice = Provider.of<PromoAPIProvider>(context);
+
     return Container(
       padding: const EdgeInsets.all(15),
       child: Column(
@@ -4067,7 +4085,247 @@ class _Verify30PercentPaymentState extends State<Verify30PercentPayment>
                       borderRadius: BorderRadius.circular(8)),
                   color: Colors.blue[900],
                   height: 40,
-                  onPressed: () {},
+                  onPressed: () {
+                    showModalBottomSheet(
+                        context: context,
+                        builder: (builder) {
+                          return Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 15),
+                              height: 600.0,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Available Promos".toUpperCase(),
+                                    style: CommonStyles.blue18900(),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 5,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(20.0)),
+                                                borderSide: BorderSide(
+                                                    color: Colors.white),
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(20.0)),
+                                                borderSide: BorderSide(
+                                                    color: Colors.grey),
+                                              )),
+                                        ),
+                                      ),
+                                      Expanded(
+                                          flex: 2,
+                                          child: TextButton(
+                                            onPressed: () async {
+                                              await promoPrice.getCategoryList(
+                                                  vehicleCategoriesAPIProvider
+                                                      .vehicleCategoriesResponseModel!
+                                                      .vehicleList![widget
+                                                          .vehicleSelectedIndex]
+                                                      .vehiclePrice!,
+                                                  couponTextEditingController
+                                                      .text);
+
+                                              itemTotal =
+                                                  vehicleCategoriesAPIProvider
+                                                      .vehicleCategoriesResponseModel!
+                                                      .vehicleList![widget
+                                                          .vehicleSelectedIndex]
+                                                      .vehiclePrice!;
+
+                                              /*apiService.getPromo(itemTotal,
+                                            couponTextEditingController.text);*/
+                                              //   getPromoCodePrice();
+                                              print("APPLY COUPON");
+                                              print("Price Cupon ---" +
+                                                  itemTotal!);
+                                              // apiServices.getPromo(_priceModel!.getPrice!,
+                                              //     couponTextEditingController.text);
+                                              print(
+                                                  "APpply cushufhsuh----------");
+                                            },
+                                            child: Text("Apply",
+                                                style: CommonStyles.black14()),
+                                          ))
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 20,
+                                  ),
+                                  couponAPI.ifLoading
+                                      ? Center(
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 0.5,
+                                          ),
+                                        )
+                                      : Expanded(
+                                          child: ListView.builder(
+                                            scrollDirection: Axis.vertical,
+                                            primary: true,
+                                            physics: BouncingScrollPhysics(),
+                                            shrinkWrap: true,
+                                            itemCount: couponAPI.couponModel!
+                                                .couponList!.length,
+                                            itemBuilder: (context, index) {
+                                              return Container(
+                                                decoration: BoxDecoration(
+                                                    color: Colors.grey.shade300,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                margin:
+                                                    EdgeInsets.only(bottom: 10),
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 15,
+                                                    vertical: 20),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      height: 160,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                              .size
+                                                              .width,
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 10,
+                                                              horizontal: 20),
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.blue,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      15)),
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceEvenly,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Text(
+                                                            couponAPI
+                                                                .couponModel!
+                                                                .couponList![
+                                                                    index]
+                                                                .couponName!,
+                                                            style: CommonStyles
+                                                                .whiteText16BoldW500(),
+                                                          ),
+                                                          Text(
+                                                            "${couponAPI.couponModel!.couponList![index].offer} %  OFF",
+                                                            style: CommonStyles
+                                                                .whiteText18BoldW500(),
+                                                          ),
+                                                          Text(
+                                                            "UPTO  ₹ ${couponAPI.couponModel!.couponList![index].upto} ",
+                                                            style: CommonStyles
+                                                                .whiteText20BoldW500(),
+                                                          ),
+                                                          Text(
+                                                            "${couponAPI.couponModel!.couponList![index].description}  ",
+                                                            style: CommonStyles
+                                                                .whiteText16BoldW500(),
+                                                          ),
+                                                          Text(
+                                                            "Valid Till ${couponAPI.couponModel!.couponList![index].validDate} ",
+                                                            style: CommonStyles
+                                                                .whiteText16BoldW500(),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Column(
+                                                          children: [
+                                                            Text(
+                                                              "Coupon ${couponAPI.couponModel!.couponList![index].couponName}  ${couponAPI.couponModel!.couponList![index].upto}",
+                                                              style: CommonStyles
+                                                                  .black13(),
+                                                            ),
+                                                            SizedBox(
+                                                              height: 10,
+                                                            ),
+                                                            Text(
+                                                              "Coupon ${couponAPI.couponModel!.couponList![index].offer} % Off  Upto ₹ ${couponAPI.couponModel!.couponList![index].upto}",
+                                                              style: CommonStyles
+                                                                  .black13(),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        ElevatedButton(
+                                                            onPressed: () {
+                                                              discount =
+                                                                  "${((double.parse(vehicleCategoriesAPIProvider.vehicleCategoriesResponseModel!.vehicleList![widget.vehicleSelectedIndex].vehiclePrice!) - double.parse(couponAPI.couponModel!.couponList![index].upto!)))}";
+
+                                                              print("discont -----" +
+                                                                  discount
+                                                                      .toString());
+
+                                                              setState(() {
+                                                                if (discount !=
+                                                                    "0") {
+                                                                  saveMoney = couponAPI
+                                                                      .couponModel!
+                                                                      .couponList![
+                                                                          index]
+                                                                      .upto;
+
+                                                                  Fluttertoast
+                                                                      .showToast(
+                                                                          msg:
+                                                                              "Promo Code Applied Successfully  !!");
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                } else {
+                                                                  Fluttertoast
+                                                                      .showToast(
+                                                                          msg:
+                                                                              "Promo Code is not Valid!!");
+                                                                }
+                                                              });
+                                                            },
+                                                            child: Text(
+                                                              "APPLY",
+                                                              style: CommonStyles
+                                                                  .black13(),
+                                                            ))
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        )
+                                ],
+                              ));
+                        });
+                  },
                   child: Row(
                     children: [
                       Text(
@@ -4171,7 +4429,14 @@ class _Verify30PercentPaymentState extends State<Verify30PercentPayment>
                     child: Center(
                       child: InkWell(
                         onTap: () {
-                          makePayment();
+                          setState(() {
+                            print("PayTm");
+                            // generateTxnToken();
+                            generateTxnToken(2);
+                            print("PauTm 2 22222222222222222");
+                          });
+
+                          // makePayment();
                         },
                         child: Row(
                           children: [
@@ -4215,39 +4480,318 @@ class _Verify30PercentPaymentState extends State<Verify30PercentPayment>
     //     );
   }
 
-  makePayment() {
-    //Replace with actual values
-    String orderId = "ORDER_ID";
-    String stage = "PROD";
-    String orderAmount = "ORDER_AMOUNT";
-    String tokenData = "TOKEN_DATA";
-    String customerName = "Customer Name";
-    String orderNote = "Order_Note";
-    String orderCurrency = "INR";
-    String appId = "APP_ID";
-    String customerPhone = "Customer Phone";
-    String customerEmail = "sample@gmail.com";
-    String notifyUrl = "https://test.gocashfree.com/notify";
+  transactionSuccess(String orderId, String txnToken) async {
+    print("Else if-----");
+    print("Signature of CheckSumHash    ----- ---------" + checksumhash);
+    /* OrderPlacedModel? orderPlacedModel = await apiService.getOrders(
+        widget.itemTotal,
+        widget.deliveryFee,
+        widget.total,
+        widget.address,
+        widget.lat,
+        widget.long,
+        orderId,
+        txnToken,
+        "UPI",
+        checksumhash);*/
 
-    Map<String, dynamic> inputParams = {
+    if (widget.stop1Lat == null &&
+        widget.stop2Lat == null &&
+        widget.stop3Lat == null) {
+      final bookVehicleRequestModel = BookVehicleRequestModel(
+          paidAmt: "0",
+          rideTime: "25-08-2022",
+          timeState: "1",
+          vehicleCharge: widget.vehicleList.vehiclePrice!,
+          customerName: widget.pickupContactName,
+          distance: widget.vehicleList.totalKm!,
+          duration: widget.vehicleList.time!,
+          fromAddress: widget.fromAddress,
+          fromLat: widget.fromLat.toString(),
+          fromLong: widget.fromLong.toString(),
+          labourQuantity: widget.vehicleList.labour!,
+          labourPrice: widget.vehicleList.labourTotal!,
+          categoryId: categoryId,
+          categoryQuantity: categoryQuantity,
+          gst: widget.vehicleList.gst!,
+          statePrice: widget.vehicleList.outerCharge!,
+          stateStatus: widget.vehicleList.outerState!,
+          customerMobile: widget.pickupContactPhone,
+          toAddress: widget.toAddress,
+          toLat: widget.toLatitude.toString(),
+          toLong: widget.toLongitude.toString(),
+          total: "1",
+          transactionId: txnToken,
+          userId: ApiServices.userId!,
+          vehicleTypeId: widget.vehicleList.id!,
+          toMobile: widget.pickupContactPhone,
+          toName: widget.pickupContactName,
+          couponCode: "jdhf",
+          discountAmt: saveMoney!);
+      await context
+          .read<BookVehicleAPIProvider>()
+          .fetchData(bookVehicleRequestModel: bookVehicleRequestModel)
+          .then((value) {
+        // showAboutDialog(context: context)
+        Utils.bookingSuccess(context);
+        context.read<OrderHistoryAPIProvider>().getOrders();
+      });
+    } else if (widget.stop1Lat != null &&
+        widget.stop2Lat == null &&
+        widget.stop3Lat == null) {
+      final bookVehicleRequestModel = BookVehicleRequestModel(
+          paidAmt: "0",
+          rideTime: "12-07-2022",
+          timeState: "1",
+          vehicleCharge: widget.vehicleList.vehiclePrice!,
+          customerName: widget.pickupContactName,
+          distance: widget.vehicleList.totalKm!,
+          duration: widget.vehicleList.time!,
+          fromAddress: widget.fromAddress,
+          fromLat: widget.fromLat.toString(),
+          fromLong: widget.fromLong.toString(),
+          labourQuantity: widget.vehicleList.labour!,
+          labourPrice: widget.vehicleList.labourTotal!,
+          categoryId: categoryId,
+          categoryQuantity: categoryQuantity,
+          gst: widget.vehicleList.gst!,
+          statePrice: widget.vehicleList.outerCharge!,
+          stateStatus: widget.vehicleList.outerState!,
+          customerMobile: widget.pickupContactPhone,
+          toAddress: "₹${widget.stop1Address}₹${widget.toAddress}",
+          toLat: "₹${widget.stop1Lat}₹${widget.toLatitude}".toString(),
+          toLong: "₹${widget.stop1Long}₹${widget.toLongitude}".toString(),
+          total: widget.vehicleList.totalPrice!,
+          transactionId: txnToken,
+          userId: ApiServices.userId!,
+          vehicleTypeId: widget.vehicleList.id!,
+          toName: "₹${widget.pickupContactName}₹${widget.pickupContactName}",
+          toMobile:
+              "₹${widget.pickupContactPhone}₹${widget.pickupContactPhone}",
+          couponCode: "jdhf",
+          discountAmt: saveMoney!);
+      await context
+          .read<BookVehicleAPIProvider>()
+          .fetchData(bookVehicleRequestModel: bookVehicleRequestModel)
+          .then((value) {
+        // showAboutDialog(context: context)
+        Utils.bookingSuccess(context);
+        context.read<OrderHistoryAPIProvider>().getOrders();
+      });
+    } else if (widget.stop1Lat != null &&
+        widget.stop2Lat != null &&
+        widget.stop3Lat != null &&
+        widget.toLatitude != null) {
+      final bookVehicleRequestModel = BookVehicleRequestModel(
+          paidAmt: "0",
+          rideTime: "12-07-2022",
+          timeState: "1",
+          vehicleCharge: widget.vehicleList.vehiclePrice!,
+          customerName: widget.pickupContactName,
+          toName:
+              "₹${widget.pickupContactName}₹${widget.pickupContactName}₹${widget.pickupContactName}",
+          distance: widget.vehicleList.totalKm!,
+          duration: widget.vehicleList.time!,
+          fromAddress: widget.fromAddress,
+          fromLat: widget.fromLat.toString(),
+          fromLong: widget.fromLong.toString(),
+          labourQuantity: widget.vehicleList.labour!,
+          labourPrice: widget.vehicleList.labourTotal!,
+          categoryId: categoryId,
+          categoryQuantity: categoryQuantity,
+          gst: widget.vehicleList.gst!,
+          statePrice: widget.vehicleList.outerCharge!,
+          stateStatus: widget.vehicleList.outerState!,
+          customerMobile: widget.pickupContactPhone,
+          toMobile:
+              "₹${widget.pickupContactPhone}₹${widget.pickupContactPhone}₹${widget.pickupContactPhone}",
+          toAddress:
+              "₹${widget.stop1Address}₹${widget.stop2Address}₹${widget.toAddress}",
+          toLat: "₹${widget.stop1Lat}₹${widget.stop2Lat}₹${widget.toLatitude}"
+              .toString(),
+          toLong:
+              "₹${widget.stop1Long}₹${widget.stop2Long}₹${widget.toLongitude}"
+                  .toString(),
+          total: widget.vehicleList.totalPrice!,
+          transactionId: txnToken,
+          userId: ApiServices.userId!,
+          vehicleTypeId: widget.vehicleList.id!,
+          couponCode: "jdhf",
+          discountAmt: saveMoney!);
+      await context
+          .read<BookVehicleAPIProvider>()
+          .fetchData(bookVehicleRequestModel: bookVehicleRequestModel)
+          .then((value) {
+        // showAboutDialog(context: context)
+        Utils.bookingSuccess(context);
+        context.read<OrderHistoryAPIProvider>().getOrders();
+      });
+    } else if (widget.stop1Lat != null &&
+        widget.stop2Lat != null &&
+        widget.stop3Lat == null) {
+      final bookVehicleRequestModel = BookVehicleRequestModel(
+          paidAmt: "0",
+          rideTime: "12-07-2022",
+          timeState: "1",
+          vehicleCharge: widget.vehicleList.vehiclePrice!,
+          customerName: widget.pickupContactName,
+          toName:
+              "₹${widget.pickupContactName}₹${widget.pickupContactName}₹${widget.pickupContactName}₹${widget.pickupContactName}",
+          distance: widget.vehicleList.totalKm!,
+          duration: widget.vehicleList.time!,
+          fromAddress: widget.fromAddress,
+          fromLat: widget.fromLat.toString(),
+          fromLong: widget.fromLong.toString(),
+          labourQuantity: widget.vehicleList.labour!,
+          labourPrice: widget.vehicleList.labourTotal!,
+          categoryId: categoryId,
+          categoryQuantity: categoryQuantity,
+          gst: widget.vehicleList.gst!,
+          statePrice: widget.vehicleList.outerCharge!,
+          stateStatus: widget.vehicleList.outerState!,
+          customerMobile: widget.pickupContactPhone,
+          toMobile:
+              "₹${widget.pickupContactPhone}₹${widget.pickupContactPhone}₹${widget.pickupContactPhone}₹${widget.pickupContactPhone}",
+          toAddress:
+              "₹${widget.stop1Address}₹${widget.stop2Address}₹${widget.stop3Address}₹${widget.toAddress}",
+          toLat:
+              "₹${widget.stop1Lat}₹${widget.stop2Lat}₹${widget.stop3Lat}₹${widget.toLatitude}"
+                  .toString(),
+          toLong:
+              "₹${widget.stop1Long}₹${widget.stop2Long}₹${widget.stop3Long}₹${widget.toLongitude}"
+                  .toString(),
+          total: widget.vehicleList.totalPrice!,
+          transactionId: txnToken,
+          userId: ApiServices.userId!,
+          vehicleTypeId: widget.vehicleList.id!,
+          couponCode: "jdhf",
+          discountAmt: saveMoney!);
+      await context
+          .read<BookVehicleAPIProvider>()
+          .fetchData(bookVehicleRequestModel: bookVehicleRequestModel)
+          .then((value) {
+        // showAboutDialog(context: context)
+        Utils.bookingSuccess(context);
+        context.read<OrderHistoryAPIProvider>().getOrders();
+      });
+    }
+    /*  print("Order Placed ---- " +
+        orderPlacedModel!.message.toString() +
+        orderPlacedModel.status.toString());
+
+    if (orderPlacedModel.status == "1") {
+      Utils.showSnackBar(
+          context: context, text: "${orderPlacedModel.message.toString()}");
+
+      */ /*  Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => const PaymentSuccessScreen()));*/ /*
+    }
+    if (orderPlacedModel.status == "0") {
+      Navigator.of(context).pop();
+      Utils.showSnackBar(
+          context: context, text: "${orderPlacedModel.message.toString()}");
+    }*/
+  }
+
+  String mid = "ZsgvFu38060831603428";
+  String result = "";
+  bool isStaging = false;
+  bool isApiCallInprogress = false;
+  String callbackUrl = "";
+  bool restrictAppInvoke = false;
+  bool enableAssist = true;
+  dynamic payment_response;
+  dynamic payment_response_status;
+  dynamic tax_amount;
+  dynamic tax_date_time;
+  dynamic reference_no;
+  dynamic checksumhash;
+
+  bool testing = false;
+  bool loading = false;
+
+  void generateTxnToken(int mode) async {
+    String orderId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    String callBackUrl = (testing
+            ? 'https://securegw-stage.paytm.in'
+            : 'https://securegw.paytm.in') +
+        '/theia/paytmCallback?ORDER_ID=' +
+        orderId;
+
+    //Host the Server Side Code on your Server and use your URL here. The following URL may or may not work. Because hosted on free server.
+    //Server Side code url: https://github.com/mrdishant/Paytm-Plugin-Server
+    var url = 'https://desolate-anchorage-29312.herokuapp.com/generateTxnToken';
+
+    var body = json.encode({
+      "mid": mid,
+      "key_secret": "IoCD8eXXL&Z4ox&p",
+      "website": "DEFAULT",
       "orderId": orderId,
-      "orderAmount": orderAmount,
-      "customerName": customerName,
-      "orderNote": orderNote,
-      "orderCurrency": orderCurrency,
-      "appId": appId,
-      "customerPhone": customerPhone,
-      "customerEmail": customerEmail,
-      "stage": stage,
-      "tokenData": tokenData,
-      "notifyUrl": notifyUrl
-    };
+      "amount": widget.vehicleList.totalPrice!,
+      "callbackUrl": callBackUrl,
+      "custId": ApiServices.userId,
+      "mode": mode.toString(),
+      "testing": testing ? 0 : 1
+    });
 
-    CashfreePGSDK.doPayment(inputParams)
-        .then((value) => value?.forEach((key, value) {
-              print("$key : $value");
-              //Do something with the result
-            }));
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: body,
+        headers: {'Content-type': "application/json"},
+      );
+      print("Response is");
+      print(response.body);
+      String txnToken = response.body;
+      setState(() {
+        payment_response = txnToken;
+      });
+      print("Txn Am+ ${txnToken}");
+
+      var paytmResponse = Paytm.payWithPaytm(
+          callBackUrl: callbackUrl,
+          mId: mid,
+          orderId: orderId,
+          staging: testing,
+          txnAmount: widget.vehicleList.totalPrice!,
+          txnToken: payment_response,
+          appInvokeEnabled: false);
+      print("paytmResponse+ ${txnToken}");
+      paytmResponse.then((value) async {
+        print(value);
+
+        loading = false;
+        print("Value is ");
+        print(value);
+        if (value['error']) {
+          payment_response = value['errorMessage'];
+        } else {
+          var order_id;
+          setState(() {
+            print("PAY TM REsponse ---------- >>>" +
+                payment_response_status.toString());
+
+            payment_response_status = value['response']['STATUS'];
+            order_id = value['response']['ORDERID'];
+            tax_amount = value['response']['TXNAMOUNT'];
+            tax_date_time = value['response']['TXNDATE'];
+            reference_no = value['response']['BANKTXNID'];
+            checksumhash = value['response']['CHECKSUMHASH'];
+
+            if (payment_response_status == 'TXN_FAILURE') {
+              print("TXN_FAILUREresponse +${payment_response_status}");
+              Navigator.pushReplacementNamed(context, 'PaymentFailure');
+            } else if (payment_response_status == 'TXN_SUCCESS') {
+              transactionSuccess(orderId, txnToken);
+            }
+          });
+        }
+        payment_response += "\n" + value.toString();
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   double getPriceFromPercentage(String price, int percentage) {
@@ -4354,16 +4898,36 @@ class _Verify30PercentPaymentState extends State<Verify30PercentPayment>
         ],
       ),
       Utils.getSizedBox(height: 10),
+      // if (saveMoney!.isNotEmpty)
+      if (discount != "0")
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Saved Money",
+              style: CommonStyles.black13thin(),
+            ),
+            Text(
+              "₹ " + discount,
+              style: CommonStyles.blue14900(),
+            ),
+          ],
+        ),
+      Utils.getSizedBox(height: 10),
       _buildDivider(),
       Utils.getSizedBox(height: 10),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text("Total to Pay", style: CommonStyles.black13thin()),
-          Text(
-              "₹ "
-              "${vehicleCategoriesAPIProvider.vehicleCategoriesResponseModel!.vehicleList![widget.vehicleSelectedIndex].totalPrice}",
-              style: CommonStyles.blue14900())
+          discount == "0"
+              ? Text(
+                  "₹ "
+                  "${vehicleCategoriesAPIProvider.vehicleCategoriesResponseModel!.vehicleList![widget.vehicleSelectedIndex].totalPrice}",
+                  style: CommonStyles.blue14900())
+              : Text(
+                  "₹  ${double.parse(vehicleCategoriesAPIProvider.vehicleCategoriesResponseModel!.vehicleList![widget.vehicleSelectedIndex].totalPrice!) - double.parse(saveMoney!)} ",
+                  style: CommonStyles.blue14900())
         ],
       ),
       Utils.getSizedBox(height: 10),

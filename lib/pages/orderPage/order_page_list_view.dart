@@ -754,6 +754,9 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
     super.initState();
   }
 
+  bool billDetailsVl = false;
+  bool driverDetailsVl = false;
+
   @override
   Widget build(BuildContext context) {
     final orderHistoryAPIProvider =
@@ -787,6 +790,7 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
         orderHistoryAPIProvider.orderHistoryResponse!
             .orderHistory![widget.index].tripDetails!.toAddress!,
         Colors.red));
+
     // return LayoutBuilder(
     //     builder: (BuildContext context, BoxConstraints constraints) {
     return SingleChildScrollView(
@@ -1111,6 +1115,22 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
+                        children: [
+                          Text(
+                            "TRIP OTP : ",
+                            style: CommonStyles.red12(),
+                          ),
+                          Utils.getSizedBox(width: 5),
+                          Text(
+                              orderHistoryAPIProvider
+                                  .orderHistoryResponse!
+                                  .orderHistory![widget.index]
+                                  .tripDetails!
+                                  .customerOtp!,
+                              style: CommonStyles.red15()),
+                        ],
+                      ),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
@@ -1140,14 +1160,157 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
                       ),
                     ]),
                 Utils.getSizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Bill Details",
-                    style: CommonStyles.black15(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Driver Details",
+                      style: CommonStyles.black15(),
+                    ),
+                    IconButton(
+                        onPressed: () {
+                          setState(() {
+                            if (driverDetailsVl == true) {
+                              driverDetailsVl = false;
+                            } else if (driverDetailsVl == false) {
+                              driverDetailsVl = true;
+                            }
+                          });
+                          print("Val bill -------" + billDetailsVl.toString());
+                        },
+                        icon: Icon(Icons.downloading_sharp))
+                  ],
+                ),
+                Utils.getSizedBox(height: 10),
+                if (driverDetailsVl == true)
+                  Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 4,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    IconButton(
+                                        onPressed: () {},
+                                        icon: Icon(
+                                          Icons.person,
+                                          size: 25,
+                                        )),
+                                    Text(
+                                      orderHistoryAPIProvider
+                                          .orderHistoryResponse!
+                                          .orderHistory![widget.index]
+                                          .driverDetails!
+                                          .driverName!,
+                                      style: CommonStyles.black14(),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    IconButton(
+                                        onPressed: () {},
+                                        icon: Icon(
+                                          Icons.phone,
+                                          size: 25,
+                                        )),
+                                    Text(
+                                      orderHistoryAPIProvider
+                                          .orderHistoryResponse!
+                                          .orderHistory![widget.index]
+                                          .driverDetails!
+                                          .phoneNo!,
+                                      style: CommonStyles.black14(),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                              child: CachedNetworkImage(
+                            imageUrl:
+                                "${orderHistoryAPIProvider.baseURL}${orderHistoryAPIProvider.orderHistoryResponse!.orderHistory![widget.index].driverDetails!.profileImage}",
+                          ))
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                              onPressed: () {},
+                              icon: Icon(
+                                Icons.car_crash,
+                                size: 25,
+                              )),
+                          Text(
+                            orderHistoryAPIProvider
+                                .orderHistoryResponse!
+                                .orderHistory![widget.index]
+                                .driverDetails!
+                                .vehicleNumber!,
+                            style: CommonStyles.black14(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Bill Details",
+                      style: CommonStyles.black15(),
+                    ),
+                    IconButton(
+                        onPressed: () {
+                          setState(() {
+                            if (billDetailsVl == true) {
+                              billDetailsVl = false;
+                            } else if (billDetailsVl == false) {
+                              billDetailsVl = true;
+                            }
+                          });
+                          print("Val bill -------" + billDetailsVl.toString());
+                        },
+                        icon: Icon(Icons.downloading_sharp))
+                  ],
+                ),
+                if (billDetailsVl == true) showBillScreen(),
+                Visibility(
+                  visible: orderHistoryAPIProvider.orderHistoryResponse!
+                              .orderHistory![widget.index].orderStatus !=
+                          "1" &&
+                      orderHistoryAPIProvider.orderHistoryResponse!
+                              .orderHistory![widget.index].orderStatus !=
+                          "2" &&
+                      orderHistoryAPIProvider.orderHistoryResponse!
+                              .orderHistory![widget.index].orderStatus !=
+                          "3" &&
+                      orderHistoryAPIProvider.orderHistoryResponse!
+                              .orderHistory![widget.index].tripDetails!.total !=
+                          orderHistoryAPIProvider
+                              .orderHistoryResponse!
+                              .orderHistory![widget.index]
+                              .tripDetails!
+                              .paidAmt!,
+                  child: RemainingPaymentAmount(
+                    toPayAmount: (double.parse(orderHistoryAPIProvider
+                                .orderHistoryResponse!
+                                .orderHistory![widget.index]
+                                .tripDetails!
+                                .total!) -
+                            double.parse(orderHistoryAPIProvider
+                                .orderHistoryResponse!
+                                .orderHistory![widget.index]
+                                .tripDetails!
+                                .paidAmt!))
+                        .toStringAsFixed(2),
                   ),
                 ),
-                showBillScreen(),
                 Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1747,31 +1910,6 @@ class _ShowDetailedTransactionState extends State<ShowDetailedTransaction> {
           ],
         ),
         Utils.getSizedBox(height: 10),
-        Visibility(
-          visible: orderHistoryAPIProvider.orderHistoryResponse!
-                      .orderHistory![widget.index].orderStatus !=
-                  "1" &&
-              orderHistoryAPIProvider.orderHistoryResponse!
-                      .orderHistory![widget.index].orderStatus !=
-                  "2" &&
-              orderHistoryAPIProvider.orderHistoryResponse!
-                      .orderHistory![widget.index].orderStatus !=
-                  "3" &&
-              orderHistoryAPIProvider.orderHistoryResponse!
-                      .orderHistory![widget.index].tripDetails!.total !=
-                  orderHistoryAPIProvider.orderHistoryResponse!
-                      .orderHistory![widget.index].tripDetails!.paidAmt!,
-          child: RemainingPaymentAmount(
-            toPayAmount: (double.parse(orderHistoryAPIProvider
-                        .orderHistoryResponse!
-                        .orderHistory![widget.index]
-                        .tripDetails!
-                        .total!) -
-                    double.parse(orderHistoryAPIProvider.orderHistoryResponse!
-                        .orderHistory![widget.index].tripDetails!.paidAmt!))
-                .toStringAsFixed(2),
-          ),
-        ),
 
         Utils.getSizedBox(height: 10),
         /*  Row(

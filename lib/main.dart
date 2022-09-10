@@ -7,6 +7,7 @@ import 'package:new_ank_customer/Services/apiProvider/cancel_reason_api_provider
 import 'package:new_ank_customer/Services/apiProvider/coupon_api_provider.dart';
 import 'package:new_ank_customer/Services/apiProvider/nearby_driver_api_provider.dart';
 import 'package:new_ank_customer/Services/apiProvider/order_specific_api_provider.dart';
+import 'package:new_ank_customer/Services/apiProvider/promo_API.dart';
 import 'package:new_ank_customer/Services/apiProvider/unit_list_api_provider.dart';
 import 'package:new_ank_customer/backend/auth/auth_widget.dart';
 import 'package:new_ank_customer/backend/auth/auth_widget_builder.dart';
@@ -106,7 +107,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<BannerAPIProvider>(
             create: (_) => BannerAPIProvider()),
         ChangeNotifierProvider<CouponAPIProvider>(
-            create: (_) => CouponAPIProvider())
+            create: (_) => CouponAPIProvider()),
+        ChangeNotifierProvider<PromoAPIProvider>(
+            create: (_) => PromoAPIProvider())
       ],
       child: AuthWidgetBuilder(
         builder:

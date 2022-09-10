@@ -72,6 +72,8 @@ dependencies:
   geocoding: ^2.0.2
 
   url_launcher: ^6.0.20
+  paytm: ^3.0.1
+
 
   fluttercontactpicker: any
   sms_autofill: ^2.2.0
